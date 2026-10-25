@@ -45,7 +45,67 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
-}
+    --animate-marquee: marquee var(--duration) infinite linear;
+    --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+    --animate-meteor: meteor 5s linear infinite;
+  @keyframes marquee {
+  from {
+    transform: translateX(0);
+        }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+        }
+    }
+  @keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+        }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+        }
+    }
+  @keyframes meteor {
+  0% {
+    transform: rotate(var(--angle)) translateX(0);
+    opacity: 1;
+        }
+  70% {
+    opacity: 1;
+        }
+  100% {
+    transform: rotate(var(--angle)) translateX(-500px);
+    opacity: 0;
+        }
+    }
+  --animate-orbit: orbit calc(var(--duration)*1s) linear infinite;
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  --animate-shine: shine var(--duration) infinite linear
+;
+  @keyframes orbit {
+  0% {
+    transform: rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg));}
+  100% {
+    transform: rotate(calc(var(--angle) * 1deg + 360deg)) translateY(calc(var(--radius) * 1px)) rotate(calc((var(--angle) * -1deg) - 360deg));}}
+  @keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);}}
+  @keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);}
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);}
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);}
+  100% {
+    transform: translateZ(0) rotate(360deg);}}
+  @keyframes shine {
+  0% {
+    background-position: 0% 0%;}
+  50% {
+    background-position: 100% 100%;}
+  to {
+    background-position: 0% 0%;}}}
 
 :root {
     --background: oklch(1 0 0);
@@ -126,4 +186,63 @@
   html {
     @apply font-sans;
     }
+}
+/* ---- Base compartida por el portfolio y las demos ---- */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::selection {
+  background: var(--seleccion, #e9b949);
+  color: var(--seleccion-texto, #0b0b10);
+}
+/* Puntos que titilan en DotPattern: solo opacidad, la anima la GPU. */
+@keyframes dot-titila {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.dot-titila {
+  opacity: 0;
+  animation: dot-titila 4s ease-in-out infinite;
+}
+
+/* Traducción automática (components/idioma): ocultar la barra y los
+   globos que inserta Google para que no desplacen el diseño. */
+iframe.skiptranslate,
+.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-te-spinner-pos {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+/* Indicador de carga de Google Translate (burbuja arriba a la izquierda). */
+[class^="VIpgJd-ZVi9od-aZ2wEe"],
+[class*=" VIpgJd-ZVi9od-aZ2wEe"] {
+  display: none !important;
 }

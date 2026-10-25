@@ -1,0 +1,271 @@
+/* Sitio de ejemplo · Estudio Faro (arquitectura)
+   Editorial monocromo: hueso, negro carbón y gris piedra. Un único acento,
+   la luz del faro, aparece solo en detalles mínimos. */
+.faro {
+  --hueso: #efebe4;
+  --hueso-2: #e5e0d6;
+  --papel: #f7f5f0;
+  --carbon: #0f0f0d;
+  --carbon-2: #1a1a17;
+  --piedra: #77736a;
+  --piedra-claro: #a8a398;
+  --linea: rgba(15, 15, 13, 0.16);
+  --linea-clara: rgba(239, 235, 228, 0.18);
+  --luz: #c9a96e;
+  --seleccion: var(--carbon);
+  --seleccion-texto: var(--hueso);
+
+  color-scheme: light;
+  background: var(--hueso);
+  color: var(--carbon);
+  font-family: var(--faro-sans), system-ui, sans-serif;
+  font-feature-settings: "ss01";
+  overflow-x: clip;
+}
+
+.faro .serif {
+  font-family: var(--faro-serif), "Times New Roman", serif;
+  font-weight: 300;
+  letter-spacing: -0.015em;
+  line-height: 0.95;
+}
+.faro .mono {
+  font-family: var(--faro-mono), ui-monospace, monospace;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.faro .etiqueta {
+  font-family: var(--faro-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Foco visible y sobrio en todo el sitio. */
+.faro :focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 4px;
+}
+
+/* Enlace con subrayado fino que crece. */
+.faro .subrayado {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.faro .subrayado:hover,
+.faro .subrayado:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Botones: rectángulos con borde fino, sin redondeos. */
+.faro .boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border: 1px solid var(--carbon);
+  background: var(--carbon);
+  color: var(--hueso);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+.faro .boton:hover {
+  background: transparent;
+  color: var(--carbon);
+}
+.faro .boton-linea {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border: 1px solid currentColor;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+.faro .boton-linea:hover {
+  background: var(--carbon);
+  color: var(--hueso);
+  border-color: var(--carbon);
+}
+.faro .sobre-oscuro .boton {
+  background: var(--hueso);
+  color: var(--carbon);
+  border-color: var(--hueso);
+}
+.faro .sobre-oscuro .boton:hover {
+  background: transparent;
+  color: var(--hueso);
+}
+.faro .sobre-oscuro .boton-linea:hover {
+  background: var(--hueso);
+  color: var(--carbon);
+  border-color: var(--hueso);
+}
+.faro .boton:disabled,
+.faro .boton-linea:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Campos de formulario: solo línea inferior, como un plano. */
+.faro .campo {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--linea);
+  padding: 0.65rem 0;
+  font-size: 1rem;
+  border-radius: 0;
+  transition: border-color 0.25s ease;
+}
+.faro .campo:focus {
+  outline: none;
+  border-bottom-color: var(--carbon);
+}
+.faro .campo[aria-invalid="true"] {
+  border-bottom-color: #9b3b2c;
+}
+.faro .error {
+  color: #9b3b2c;
+}
+
+/* Opciones elegibles (radios con aspecto de ficha). */
+.faro .opcion {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--linea);
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+.faro .opcion:hover {
+  border-color: var(--carbon);
+}
+.faro .opcion:has(input:checked) {
+  border-color: var(--carbon);
+  background: var(--carbon);
+  color: var(--hueso);
+}
+.faro .opcion:has(input:focus-visible) {
+  outline: 1px solid var(--carbon);
+  outline-offset: 3px;
+}
+.faro .opcion input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Capas (menú, fichas, paneles): fundidos cortos. */
+@keyframes faro-entra {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes faro-sale {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes faro-sube {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes faro-desliza {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes faro-desliza-sale {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.faro .capa[data-state="open"] {
+  animation: faro-entra 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.faro .capa[data-state="closed"] {
+  animation: faro-sale 0.3s ease forwards;
+}
+.faro .panel-lateral[data-state="open"] {
+  animation: faro-desliza 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.faro .panel-lateral[data-state="closed"] {
+  animation: faro-desliza-sale 0.35s ease forwards;
+}
+.faro .sube {
+  animation: faro-sube 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.faro .aparece {
+  animation: faro-entra 0.6s ease both;
+}
+
+/* Portada: barra de tiempo de la diapositiva activa. */
+@keyframes faro-tiempo {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.faro .tiempo {
+  transform-origin: left;
+  animation: faro-tiempo var(--duracion, 6s) linear forwards;
+}
+.faro .tiempo[data-pausa="true"] {
+  animation-play-state: paused;
+}
+
+/* Barras de avance del área de clientes. */
+.faro .avance {
+  transform-origin: left;
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faro .sube,
+  .faro .aparece {
+    animation: none;
+  }
+  .faro .tiempo {
+    animation: none;
+    transform: scaleX(0);
+  }
+}

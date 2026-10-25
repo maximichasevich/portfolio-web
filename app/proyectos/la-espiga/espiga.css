@@ -1,0 +1,308 @@
+/*
+ * Sitio de ejemplo · La Espiga (panadería de barrio)
+ * Dirección: almacén con oficio. Papel crema y kraft, tinta marrón, rojo de
+ * sello, pizarra verde con tiza. Texto grande y contraste alto.
+ */
+
+html:has(.espiga) {
+  background: #f6efdf;
+}
+
+.espiga {
+  --papel: #f6efdf;
+  --papel-2: #ede2c8;
+  --kraft: #d6b98d;
+  --kraft-2: #c9a673;
+  --tinta: #22180e;
+  --tinta-70: #5a4a3a;
+  --tinta-20: rgba(34, 24, 14, 0.22);
+  --rojo: #a3301c;
+  --rojo-2: #852412;
+  --pizarra: #26332b;
+  --pizarra-2: #1d2821;
+  --tiza: #f5f2e9;
+  --tiza-70: #d6d4ca;
+  --tiza-30: rgba(245, 242, 233, 0.3);
+  --amarilla: #f3d47c;
+  --madera: #6b4528;
+  --seleccion: var(--amarilla);
+  --seleccion-texto: var(--tinta);
+  --ruido: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.16 0 0 0 0 0.08 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  color-scheme: light;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family:
+    var(--font-texto), "Atkinson Hyperlegible", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  overflow-x: clip;
+}
+
+.espiga :focus-visible {
+  outline: 3px solid var(--rojo);
+  outline-offset: 3px;
+}
+.espiga .pizarra :focus-visible,
+.espiga .pie :focus-visible,
+.espiga .franja :focus-visible {
+  outline-color: var(--amarilla);
+}
+
+/* ---- Tipografías ---- */
+.espiga .titulo,
+.espiga .sello-marca {
+  font-family: var(--font-titulo), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+.espiga .tiza {
+  font-family: var(--font-tiza), "Comic Sans MS", cursive;
+  line-height: 1.15;
+}
+.espiga .sello-texto {
+  font-family: var(--font-texto), system-ui, sans-serif;
+}
+.espiga .volanta {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ---- Botones ---- */
+.espiga .boton-rojo,
+.espiga .boton-tinta,
+.espiga .boton-borde,
+.espiga .boton-tiza {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  font-weight: 700;
+  border: 2px solid transparent;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.espiga .boton-rojo {
+  background: var(--rojo);
+  border-color: var(--rojo);
+  color: var(--papel);
+  box-shadow: 0 3px 0 var(--rojo-2);
+}
+.espiga .boton-rojo:hover {
+  background: var(--rojo-2);
+}
+.espiga .boton-rojo:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--rojo-2);
+}
+.espiga .boton-tinta {
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: var(--papel);
+}
+.espiga .boton-tinta:hover {
+  background: #3b2b1b;
+}
+.espiga .boton-borde {
+  background: transparent;
+  border-color: var(--tinta);
+  color: var(--tinta);
+}
+.espiga .boton-borde:hover {
+  background: var(--papel-2);
+}
+.espiga .boton-tiza {
+  background: transparent;
+  border-color: var(--tiza);
+  color: var(--tiza);
+}
+.espiga .boton-tiza:hover {
+  background: rgba(245, 242, 233, 0.12);
+}
+.espiga [aria-disabled="true"],
+.espiga button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ---- Superficies ---- */
+.espiga .kraft {
+  background-color: var(--kraft);
+  background-image: var(--ruido);
+}
+.espiga .papel {
+  background-color: var(--papel);
+  background-image: var(--ruido);
+}
+
+/* Pizarra verde con marco de madera y restos de tiza. */
+.espiga .pizarra {
+  color: var(--tiza);
+  background-color: var(--pizarra);
+  background-image:
+    radial-gradient(
+      120% 70% at 20% 10%,
+      rgba(255, 255, 255, 0.07),
+      transparent 60%
+    ),
+    radial-gradient(
+      90% 60% at 85% 90%,
+      rgba(255, 255, 255, 0.05),
+      transparent 60%
+    ),
+    var(--ruido);
+}
+.espiga .marco {
+  border: 12px solid var(--madera);
+  border-image: linear-gradient(
+      135deg,
+      #7d5332,
+      #5a3a20 40%,
+      #7a5030 70%,
+      #553519
+    )
+    1;
+  box-shadow:
+    inset 0 0 0 2px rgba(0, 0, 0, 0.25),
+    inset 0 10px 30px rgba(0, 0, 0, 0.35),
+    0 18px 40px -20px rgba(34, 24, 14, 0.6);
+}
+@media (min-width: 768px) {
+  .espiga .marco {
+    border-width: 16px;
+  }
+}
+
+/* Línea de puntos entre el nombre y el precio, como en las pizarras. */
+.espiga .puntos {
+  flex: 1 1 1.5rem;
+  min-width: 1rem;
+  border-bottom: 3px dotted var(--tiza-30);
+  transform: translateY(-0.35em);
+}
+
+/* Papel rayado de la nota de encargo. */
+.espiga .rayado {
+  background-color: #fffaf0;
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent 2.4rem,
+      rgba(163, 48, 28, 0.35) 2.4rem,
+      rgba(163, 48, 28, 0.35) calc(2.4rem + 2px),
+      transparent calc(2.4rem + 2px)
+    ),
+    repeating-linear-gradient(
+      transparent 0,
+      transparent 2.15rem,
+      rgba(34, 80, 120, 0.14) 2.15rem,
+      rgba(34, 80, 120, 0.14) calc(2.15rem + 1px)
+    );
+}
+
+/* Cinta adhesiva para fotos "pegadas". */
+.espiga .cinta {
+  position: absolute;
+  width: 6.5rem;
+  height: 1.6rem;
+  background: rgba(240, 228, 196, 0.85);
+  box-shadow: 0 1px 2px rgba(34, 24, 14, 0.2);
+}
+
+/* Borde de ticket con dientes arriba y abajo. */
+.espiga .ticket {
+  background: #fffaf0;
+  mask:
+    radial-gradient(circle at 50% 0, transparent 6px, #000 6.5px) top / 18px 51%
+      repeat-x,
+    radial-gradient(circle at 50% 100%, transparent 6px, #000 6.5px) bottom /
+      18px 51% repeat-x;
+}
+
+.espiga .sombra-papel {
+  box-shadow:
+    0 1px 0 rgba(34, 24, 14, 0.08),
+    0 14px 30px -18px rgba(34, 24, 14, 0.45);
+}
+
+/* ---- Navegación por pestañas tipo fichero ---- */
+.espiga .pestana {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0.55rem 1.05rem;
+  font-weight: 700;
+  color: var(--tinta);
+  background: var(--kraft);
+  border: 2px solid var(--tinta);
+  border-bottom: 0;
+  border-radius: 0.6rem 0.6rem 0 0;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+.espiga .pestana:hover {
+  background: var(--kraft-2);
+}
+.espiga .pestana[aria-current="true"] {
+  background: var(--papel);
+  transform: translateY(2px);
+}
+
+/* ---- Paneles (drawers) ---- */
+.espiga .panel {
+  background: var(--papel);
+  border-color: var(--tinta);
+  color: var(--tinta);
+}
+.espiga .panel-cabeza {
+  border-bottom: 2px solid var(--tinta);
+}
+.espiga .panel-velo {
+  background: rgba(34, 24, 14, 0.55);
+}
+
+.espiga .campo {
+  width: 100%;
+  min-height: 3.1rem;
+  padding: 0.6rem 0.85rem;
+  font-size: 1.0625rem;
+  background: #fffdf7;
+  border: 2px solid var(--tinta);
+  border-radius: 0.4rem;
+  color: var(--tinta);
+}
+.espiga .campo::placeholder {
+  color: #7d6e5f;
+}
+.espiga .campo[aria-invalid="true"] {
+  border-color: var(--rojo);
+  background: #fff3ef;
+}
+.espiga .campo:focus-visible {
+  outline-offset: 1px;
+}
+
+.espiga .anclas {
+  scroll-margin-top: 5.5rem;
+}
+@media (min-width: 1024px) {
+  .espiga .anclas {
+    scroll-margin-top: 4.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .espiga .pestana[aria-current="true"],
+  .espiga .boton-rojo:active {
+    transform: none;
+  }
+}

@@ -1,15 +1,42 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata, Viewport } from "next"
+import { Geist } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
+import { WhatsappFlotante } from "@/components/whatsapp-flotante"
+import { perfil } from "@/data/perfil"
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'})
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
+export const metadata: Metadata = {
+  metadataBase: new URL(perfil.url),
+  title: {
+    default: `${perfil.nombre} · Páginas web a medida en Montevideo`,
+    template: `%s · ${perfil.nombre}`,
+  },
+  description: perfil.descripcion,
+  keywords: [
+    "diseño web Montevideo",
+    "páginas web Uruguay",
+    "tienda online Uruguay",
+    "desarrollador web freelance",
+    "landing page",
+  ],
+  authors: [{ name: perfil.nombre }],
+  creator: perfil.nombre,
+  openGraph: {
+    type: "website",
+    locale: "es_UY",
+    siteName: perfil.nombre,
+  },
+  robots: { index: true, follow: true },
+}
+
+export const viewport: Viewport = {
+  themeColor: "#05060f",
+  width: "device-width",
+  initialScale: 1,
+}
 
 export default function RootLayout({
   children,
@@ -18,12 +45,14 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="es"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", geist.variable)}
+      className={cn("dark font-sans antialiased", geist.variable)}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        {children}
+        {/* Botón de WhatsApp visible en todas las páginas. */}
+        <WhatsappFlotante />
       </body>
     </html>
   )

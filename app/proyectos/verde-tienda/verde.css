@@ -1,0 +1,396 @@
+/* Sitio de ejemplo · Verde Tienda (vivero online)
+ *
+ * Bloques de color vivos, formas orgánicas y stickers con borde de tinta.
+ * Las variables se definen en .verde (la página) y en .vt-capa (paneles
+ * que Radix monta en un portal, fuera de la página).
+ */
+.verde,
+.vt-capa {
+  --vt-crema: #fff5e6;
+  --vt-papel: #fffdf8;
+  --vt-tinta: #1f2a22;
+  --vt-tinta-70: rgba(31, 42, 34, 0.74);
+  --vt-tinta-50: rgba(31, 42, 34, 0.55);
+  --vt-tinta-15: rgba(31, 42, 34, 0.14);
+  --vt-coral: #ff6542;
+  --vt-coral-suave: #ffd9cc;
+  --vt-hoja: #1e6b45;
+  --vt-manteca: #ffd84d;
+  --vt-lila: #cbbcff;
+  --vt-rosa: #ffbfd4;
+  --vt-menta: #b8ead0;
+  --vt-cielo: #b6dcff;
+  --vt-durazno: #ffcf9e;
+  --seleccion: var(--vt-manteca);
+  --seleccion-texto: var(--vt-tinta);
+
+  color-scheme: light;
+  color: var(--vt-tinta);
+  font-family: var(--vt-texto), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.verde {
+  background: var(--vt-crema);
+  overflow-x: clip;
+}
+
+/* El fondo del documento (rebote del scroll) también en crema. */
+body:has(.verde) {
+  background: #fff5e6;
+}
+
+.verde :focus-visible,
+.vt-capa :focus-visible {
+  outline: 3px solid var(--vt-coral);
+  outline-offset: 2px;
+}
+/* El buscador marca el foco en su contenedor. */
+.verde input[role="combobox"]:focus-visible,
+.vt-capa input[role="combobox"]:focus-visible {
+  outline: none;
+}
+
+/* En la capa components: las utilidades de Tailwind (hidden, lg:flex…) les ganan. */
+@layer components {
+/* ---------- Tipografía ---------- */
+
+.vt-titulo {
+  font-family: var(--vt-display), var(--vt-texto), system-ui, sans-serif;
+  font-weight: 800;
+  font-variation-settings:
+    "wdth" 82,
+    "opsz" 96;
+  letter-spacing: -0.025em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.vt-display {
+  font-family: var(--vt-display), var(--vt-texto), system-ui, sans-serif;
+  font-variation-settings:
+    "wdth" 90,
+    "opsz" 32;
+}
+
+/* Subrayado de trazo a mano debajo de una palabra del titular. */
+.vt-garabato {
+  position: relative;
+  white-space: nowrap;
+}
+.vt-garabato::after {
+  content: "";
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: -0.12em;
+  height: 0.28em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M3 14 C 40 4, 70 18, 100 10 S 160 4, 197 12' fill='none' stroke='%23ff6542' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat center / 100% 100%;
+  z-index: -1;
+}
+
+/* ---------- Botones ---------- */
+
+.vt-boton,
+.vt-boton-tinta,
+.vt-boton-linea {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 2px solid var(--vt-tinta);
+  border-radius: 999px;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.vt-boton {
+  background: var(--vt-coral);
+  color: var(--vt-tinta);
+  box-shadow: 0 3px 0 var(--vt-tinta);
+}
+.vt-boton-tinta {
+  background: var(--vt-tinta);
+  color: var(--vt-papel);
+  box-shadow: 0 3px 0 var(--vt-coral);
+}
+.vt-boton-linea {
+  background: var(--vt-papel);
+  color: var(--vt-tinta);
+}
+.vt-boton:hover,
+.vt-boton-tinta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--vt-tinta);
+}
+.vt-boton-tinta:hover {
+  box-shadow: 0 5px 0 var(--vt-coral);
+}
+.vt-boton:active,
+.vt-boton-tinta:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--vt-tinta);
+}
+.vt-boton-linea:hover {
+  background: var(--vt-manteca);
+}
+.vt-boton:disabled,
+.vt-boton-tinta:disabled {
+  opacity: 0.5;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Botón redondo de ícono (encabezado, corazones, cerrar). */
+.vt-icono {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+.vt-icono:hover {
+  background: rgba(31, 42, 34, 0.08);
+}
+
+/* Chips de filtro y opciones (tamaño, maceta, quiz). */
+.vt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 2px solid var(--vt-tinta);
+  border-radius: 999px;
+  background: var(--vt-papel);
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+.vt-chip:hover {
+  background: var(--vt-manteca);
+}
+.vt-chip[aria-pressed="true"],
+.vt-chip[aria-checked="true"],
+.vt-chip[data-state="checked"] {
+  background: var(--vt-tinta);
+  color: var(--vt-papel);
+}
+
+.vt-opcion {
+  border: 2px solid var(--vt-tinta-15);
+  border-radius: 18px;
+  background: var(--vt-papel);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.vt-opcion:hover {
+  border-color: var(--vt-tinta);
+}
+.vt-opcion[data-state="checked"],
+.vt-opcion[aria-pressed="true"] {
+  border-color: var(--vt-tinta);
+  background: var(--vt-manteca);
+}
+
+/* ---------- Stickers y tarjetas ---------- */
+
+.vt-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 2px solid var(--vt-tinta);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--vt-tinta);
+  rotate: var(--giro, -4deg);
+}
+
+.vt-tarjeta {
+  background: var(--vt-papel);
+  border: 2px solid var(--vt-tinta);
+  border-radius: 28px;
+}
+
+/* Formas orgánicas para las fotos. */
+.vt-blob-1 {
+  border-radius: 58% 42% 46% 54% / 52% 44% 56% 48%;
+}
+.vt-blob-2 {
+  border-radius: 44% 56% 60% 40% / 46% 58% 42% 54%;
+}
+.vt-blob-3 {
+  border-radius: 50% 50% 38% 62% / 60% 40% 60% 40%;
+}
+
+.vt-producto .vt-producto-foto {
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.vt-producto:hover .vt-producto-foto {
+  transform: scale(1.05) rotate(-1deg);
+}
+
+/* ---------- Campos ---------- */
+
+.vt-campo {
+  width: 100%;
+  min-height: 3rem;
+  border: 2px solid var(--vt-tinta-15);
+  border-radius: 16px;
+  background: var(--vt-papel);
+  padding: 0.7rem 0.95rem;
+  font-size: 1rem;
+  color: var(--vt-tinta);
+  transition: border-color 0.2s ease;
+}
+.vt-campo::placeholder {
+  color: var(--vt-tinta-50);
+}
+.vt-campo:hover {
+  border-color: var(--vt-tinta-50);
+}
+.vt-campo:focus {
+  border-color: var(--vt-tinta);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--vt-manteca);
+}
+.vt-campo[aria-invalid="true"] {
+  border-color: #c2361b;
+  background: #fff2ee;
+}
+
+/* ---------- Paneles (Radix) ---------- */
+
+.vt-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(31, 42, 34, 0.45);
+  backdrop-filter: blur(2px);
+}
+.vt-velo[data-state="open"] {
+  animation: vt-aparece 0.25s ease both;
+}
+.vt-velo[data-state="closed"] {
+  animation: vt-desaparece 0.2s ease both;
+}
+
+.vt-cajon-der[data-state="open"] {
+  animation: vt-entra-der 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.vt-cajon-der[data-state="closed"] {
+  animation: vt-sale-der 0.22s ease-in both;
+}
+.vt-cajon-izq[data-state="open"] {
+  animation: vt-entra-izq 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.vt-cajon-izq[data-state="closed"] {
+  animation: vt-sale-izq 0.22s ease-in both;
+}
+
+/* Modal: hoja desde abajo en celular, ventana centrada en escritorio. */
+.vt-modal[data-state="open"] {
+  animation: vt-sube 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.vt-modal[data-state="closed"] {
+  animation: vt-baja 0.2s ease-in both;
+}
+@media (min-width: 768px) {
+  .vt-modal[data-state="open"] {
+    animation: vt-pop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .vt-modal[data-state="closed"] {
+    animation: vt-desaparece 0.15s ease both;
+  }
+}
+
+.vt-menu[data-state="open"] {
+  animation: vt-pop-arriba 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.vt-menu[data-state="closed"] {
+  animation: vt-desaparece 0.12s ease both;
+}
+
+.vt-item[data-highlighted] {
+  background: var(--vt-manteca);
+  outline: none;
+}
+
+@keyframes vt-aparece {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes vt-desaparece {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-entra-der {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes vt-sale-der {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes vt-entra-izq {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes vt-sale-izq {
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes vt-sube {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes vt-baja {
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes vt-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+@keyframes vt-pop-arriba {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+/* Barras de desplazamiento finitas dentro de los paneles. */
+.vt-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--vt-tinta-15) transparent;
+}
+
+/* Cinta de categorías del celular: se desliza sin mostrar barra. */
+.vt-sin-barra {
+  scrollbar-width: none;
+}
+.vt-sin-barra::-webkit-scrollbar {
+  display: none;
+}
+
+}

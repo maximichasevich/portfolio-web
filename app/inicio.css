@@ -1,0 +1,348 @@
+/* Propuesta 3 · Órbita (inmersiva, nocturna) */
+.inicio {
+  --noche: #05060f;
+  --nebulosa: #0c0f22;
+  --estrella: #f5f7ff;
+  --estrella-70: rgba(245, 247, 255, 0.7);
+  --estrella-45: rgba(245, 247, 255, 0.45);
+  --borde: rgba(245, 247, 255, 0.1);
+  --violeta: #7c5cff;
+  --cian: #39d5ff;
+  --seleccion: var(--cian);
+  --seleccion-texto: var(--noche);
+
+  background: var(--noche);
+  color: var(--estrella);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: clip;
+}
+
+.inicio .display {
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+}
+
+.inicio .display-md {
+  font-family: var(--font-syne), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+/* Panel de vidrio: la superficie base del portfolio. */
+.inicio .vidrio {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid var(--borde);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Botón principal: degradado violeta→cian con halo que crece al pasar. */
+.inicio .boton-orbita {
+  position: relative;
+  isolation: isolate;
+  color: var(--noche);
+  background: linear-gradient(100deg, var(--cian), var(--violeta));
+  box-shadow:
+    0 0 0 0 rgba(124, 92, 255, 0),
+    0 10px 40px -12px rgba(57, 213, 255, 0.45);
+  transition:
+    box-shadow 0.35s ease,
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.inicio .boton-orbita:hover,
+.inicio .boton-orbita:focus-visible {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 6px rgba(124, 92, 255, 0.18),
+    0 18px 50px -12px rgba(57, 213, 255, 0.65);
+  outline: none;
+}
+
+.inicio .boton-fantasma {
+  border: 1px solid var(--borde);
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+}
+.inicio .boton-fantasma:hover,
+.inicio .boton-fantasma:focus-visible {
+  border-color: rgba(245, 247, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.05);
+  outline: none;
+}
+
+.inicio .enlace {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: rgba(57, 213, 255, 0.5);
+  transition:
+    color 0.25s ease,
+    text-decoration-color 0.25s ease;
+}
+.inicio .enlace:hover,
+.inicio .enlace:focus-visible {
+  color: var(--cian);
+  text-decoration-color: var(--cian);
+  outline: none;
+}
+
+/* Texto con brillo de estrella. */
+.inicio .brillo {
+  text-shadow:
+    0 0 24px rgba(124, 92, 255, 0.45),
+    0 0 60px rgba(57, 213, 255, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inicio .boton-orbita:hover {
+    transform: none;
+  }
+}
+
+
+/* Acordeón de preguntas. */
+.inicio [data-slot="accordion-trigger"] {
+  color: var(--estrella);
+}
+.inicio [data-slot="accordion-trigger"]:hover {
+  color: var(--cian);
+}
+
+/* ------------------------------------------------------------------ */
+/* Lenguaje HUD: marcos con esquinas, etiquetas mono y escaneo.        */
+/* ------------------------------------------------------------------ */
+.inicio .mono {
+  font-family: var(--font-hud), ui-monospace, monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Etiqueta de sección tipo consola: [02] // EJEMPLOS EN VIVO */
+.inicio .etiqueta-hud {
+  font-family: var(--font-hud), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cian);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.inicio .etiqueta-hud::before {
+  content: "";
+  width: 1.75rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cian));
+}
+
+/* Marco con esquinas en L, como la mira de una interfaz. */
+.inicio .hud {
+  position: relative;
+  border: 1px solid var(--borde);
+  background:
+    linear-gradient(180deg, rgba(124, 92, 255, 0.07), rgba(57, 213, 255, 0.02)),
+    rgba(12, 15, 34, 0.55);
+}
+.inicio .hud::before,
+.inicio .hud::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  border-color: var(--cian);
+  border-style: solid;
+}
+.inicio .hud::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+.inicio .hud::after {
+  right: -1px;
+  bottom: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+/* Líneas de escaneo muy sutiles. */
+.inicio .escaneo {
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.035) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+/* Barrido de luz que recorre un panel una vez cada tanto. */
+@keyframes barrido-hud {
+  0% {
+    transform: translateY(-100%);
+  }
+  60%,
+  100% {
+    transform: translateY(400%);
+  }
+}
+.inicio .barrido::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 30%;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(57, 213, 255, 0.08),
+    transparent
+  );
+  animation: barrido-hud 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Punto "en vivo" que late. */
+@keyframes latido {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(63, 214, 140, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(63, 214, 140, 0);
+  }
+}
+.inicio .en-vivo {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #3fd68c;
+  animation: latido 2s ease-in-out infinite;
+}
+
+/* Texto con degradado cian a violeta. */
+.inicio .degradado {
+  background: linear-gradient(100deg, var(--cian), var(--violeta) 60%, #f5f7ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Botones de control circulares (carrusel, pasos). */
+.inicio .boton-hud {
+  border: 1px solid var(--borde);
+  background: rgba(12, 15, 34, 0.7);
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+.inicio .boton-hud:hover,
+.inicio .boton-hud:focus-visible {
+  border-color: var(--cian);
+  color: var(--cian);
+  outline: none;
+}
+.inicio .boton-hud[aria-pressed="true"],
+.inicio .boton-hud[aria-selected="true"],
+.inicio .boton-hud[data-activo="true"] {
+  border-color: var(--cian);
+  background: rgba(57, 213, 255, 0.12);
+  color: var(--estrella);
+}
+
+/* Entrada del menú HUD. */
+@keyframes hud-entra {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes hud-fondo {
+  from {
+    opacity: 0;
+  }
+}
+.menu-hud[data-state="open"] {
+  animation: hud-entra 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.menu-hud-fondo[data-state="open"] {
+  animation: hud-fondo 0.3s ease;
+}
+
+/* Barra de progreso del carrusel de ejemplos. Corre aunque el sistema pida
+   reducir movimiento: acompaña al pase automático, que tiene botón de pausa. */
+@keyframes progreso-carrusel {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.inicio .progreso-carrusel {
+  animation-name: progreso-carrusel;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .inicio .progreso-carrusel {
+    animation-duration: 7000ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Cursor parpadeante de la terminal del contacto. */
+@keyframes cursor-terminal {
+  50% {
+    opacity: 0;
+  }
+}
+.inicio .cursor-terminal {
+  animation: cursor-terminal 1s steps(1) infinite;
+}
+
+/* Etiqueta HUD con texto que se decodifica (HyperText pone cada letra en
+   su propio span): sin separación entre letras y con la fuente mono. */
+.inicio .etiqueta-hud.decodifica {
+  gap: 0;
+}
+.inicio .etiqueta-hud.decodifica::before {
+  margin-right: 0.6rem;
+}
+.inicio .etiqueta-hud.decodifica span {
+  font-family: inherit;
+}
+
+/* Muro de pantallas: columnas que suben y bajan en sentidos alternados.
+   Corre aunque el sistema pida reducir movimiento (decisión del dueño del
+   sitio): es lento y decorativo. */
+@keyframes muro-sube {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+.inicio .muro-col {
+  animation: muro-sube var(--duracion, 40s) linear infinite;
+}
+.inicio .muro-col[data-sentido="baja"] {
+  animation-direction: reverse;
+}
+.inicio .muro:hover .muro-col {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .inicio .muro-col {
+    animation-duration: var(--duracion, 40s) !important;
+    animation-iteration-count: infinite !important;
+  }
+}
