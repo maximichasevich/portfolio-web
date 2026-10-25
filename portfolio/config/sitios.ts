@@ -7,17 +7,17 @@
  * prioridad sobre estos valores por defecto. Van sin barra final.
  */
 export const sitios = {
-  /** Este portfolio. Con dominio propio: "https://tudominio.com". */
+  /** Este portfolio. */
   portfolio:
     process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://maximilianomichasevich.netlify.app",
+    "https://michasevich.com",
   laEspiga:
     process.env.NEXT_PUBLIC_DEMO_LA_ESPIGA_URL ??
-    "https://demo-la-espiga.netlify.app",
+    "https://laespiga.michasevich.com",
   estudioFaro:
     process.env.NEXT_PUBLIC_DEMO_ESTUDIO_FARO_URL ??
-    "https://demo-estudio-faro.netlify.app",
+    "https://estudiofaro.michasevich.com",
   verdeTienda:
     process.env.NEXT_PUBLIC_DEMO_VERDE_TIENDA_URL ??
-    "https://demo-verde-tienda.netlify.app",
+    "https://verdetienda.michasevich.com",
 }

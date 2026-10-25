@@ -10,11 +10,11 @@ export const sitio = {
   nombre: "Estudio Faro",
   /** Dirección pública de esta demo (sin barra final). */
   url:
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://demo-estudio-faro.netlify.app",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://estudiofaro.michasevich.com",
   /** Dirección del portfolio, para el aviso "Volver al portfolio". */
   portfolio:
     process.env.NEXT_PUBLIC_PORTFOLIO_URL ??
-    "https://maximilianomichasevich.netlify.app",
+    "https://michasevich.com",
   /** WhatsApp del desarrollador (con código de país, sin "+" ni espacios). */
   whatsapp: "59892443629",
 }
