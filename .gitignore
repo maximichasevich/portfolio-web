@@ -22,3 +22,7 @@ Thumbs.db
 
 # Configuración local de Claude Code (propia de cada computadora)
 .claude/settings.local.json
+
+# Archivos temporales de la CLI de Supabase (en cualquier carpeta)
+**/supabase/.temp/
+**/supabase/.branches/
