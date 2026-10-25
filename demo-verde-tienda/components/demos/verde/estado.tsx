@@ -30,6 +30,7 @@ import {
   type Cupon,
 } from "@/components/demos/verde/extras"
 import { volarAlCarrito } from "@/components/demos/verde/efectos"
+import { RUTA } from "@/components/demos/verde/rutas"
 
 /* ---------- Tipos ---------- */
 
@@ -153,9 +154,8 @@ export const filtrosVacios: Filtros = {
   texto: "",
 }
 
-/** Ruta de la portada de la tienda. */
-/** Ruta base de la tienda: el sitio vive en la raíz de su dominio. */
-export const RUTA = ""
+/** Ruta base de la tienda (definida en rutas.ts). */
+export { RUTA }
 
 export function rutaPlanta(id: string) {
   return `${RUTA}/planta/${id}`

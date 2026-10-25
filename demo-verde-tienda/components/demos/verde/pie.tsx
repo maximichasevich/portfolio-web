@@ -4,7 +4,7 @@ import { AtSign, MessageCircle } from "lucide-react"
 import { CreditosFotos } from "@/components/demos/creditos-fotos"
 import { fotosVerde } from "@/components/demos/fotos"
 import { whatsappDemo } from "@/lib/demo"
-import { RUTA } from "@/components/demos/verde/estado"
+import { RUTA } from "@/components/demos/verde/rutas"
 import { BotonPausa, Logo } from "@/components/demos/verde/ui"
 
 const consulta = whatsappDemo(

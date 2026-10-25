@@ -69,6 +69,12 @@ export function Contacto() {
   const [plazo, setPlazo] = useState("")
   const [nombre, setNombre] = useState("")
   const [negocio, setNegocio] = useState("")
+  // Campos controlados: React vacía los campos libres después de enviar, y
+  // si el envío falla la persona perdería lo que escribió.
+  const [email, setEmail] = useState("")
+  const [telefono, setTelefono] = useState("")
+  const [paquete, setPaquete] = useState("")
+  const [escrito, setEscrito] = useState("")
   /** Envío del formulario a Supabase (acción de servidor). */
   const [resultado, accion, enviando] = useActionState<
     EstadoContacto,
@@ -251,6 +257,8 @@ export function Contacto() {
                       nombre="email"
                       tipo="email"
                       etiqueta="Tu correo"
+                      valor={email}
+                      onCambio={setEmail}
                       autoComplete="email"
                       error={err.email}
                       requerido
@@ -260,6 +268,8 @@ export function Contacto() {
                       nombre="telefono"
                       tipo="tel"
                       etiqueta="Teléfono o WhatsApp (opcional)"
+                      valor={telefono}
+                      onCambio={setTelefono}
                       autoComplete="tel"
                       error={err.telefono}
                     />
@@ -270,7 +280,8 @@ export function Contacto() {
                       <select
                         id={`${idBase}-paquete`}
                         name="paquete"
-                        defaultValue=""
+                        value={paquete}
+                        onChange={(e) => setPaquete(e.target.value)}
                         className="w-full rounded-xl border border-[var(--borde)] bg-[rgba(5,6,15,0.85)] px-4 py-3 text-sm text-[var(--estrella)] focus:border-[var(--cian)] focus:outline-none"
                       >
                         <option value="">Paquete de interés (opcional)</option>
@@ -291,6 +302,8 @@ export function Contacto() {
                         id={`${idBase}-mensaje`}
                         name="mensaje"
                         rows={4}
+                        value={escrito}
+                        onChange={(e) => setEscrito(e.target.value)}
                         placeholder="Contame en pocas palabras qué hace tu negocio y qué necesitás."
                         aria-invalid={err.mensaje ? true : undefined}
                         aria-describedby={
