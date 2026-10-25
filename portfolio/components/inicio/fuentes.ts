@@ -1,8 +1,9 @@
 import { JetBrains_Mono, Syne } from "next/font/google"
 
 /**
- * Fuentes de la portada. Están en un archivo aparte porque el menú se monta
- * en un portal (fuera de la página) y también necesita las variables.
+ * Fuentes de la portada. Se cargan una sola vez en app/layout.tsx (sobre
+ * <html>), así las variables llegan también al menú, que se monta en un
+ * portal. No importar este archivo desde componentes "use client".
  */
 export const syne = Syne({
   subsets: ["latin"],

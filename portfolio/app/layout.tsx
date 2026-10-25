@@ -3,6 +3,7 @@ import { Geist } from "next/font/google"
 
 import "./globals.css"
 import { cn } from "@/lib/utils"
+import { fuentesInicio } from "@/components/inicio/fuentes"
 import { WhatsappFlotante } from "@/components/whatsapp-flotante"
 import { perfil } from "@/data/perfil"
 
@@ -47,7 +48,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={cn("dark font-sans antialiased", geist.variable)}
+      className={cn("dark font-sans antialiased", geist.variable, fuentesInicio)}
     >
       <body>
         {children}

@@ -7,7 +7,6 @@ import { Contacto } from "@/components/inicio/contacto"
 import { ComoTrabajo } from "@/components/inicio/como-trabajo"
 import { Ejemplos } from "@/components/inicio/ejemplos"
 import { Faq } from "@/components/inicio/faq"
-import { fuentesInicio } from "@/components/inicio/fuentes"
 import { Hero } from "@/components/inicio/hero"
 import { CursorLuz } from "@/components/inicio/interacciones"
 import { Nav } from "@/components/inicio/nav"
@@ -15,7 +14,6 @@ import { Precios } from "@/components/inicio/precios"
 import { Razones } from "@/components/inicio/razones"
 import { Servicios } from "@/components/inicio/servicios"
 import { ScrollProgress } from "@/components/ui/scroll-progress"
-import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: {
@@ -32,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className={cn("inicio min-h-svh", fuentesInicio)}>
+    <div className={"inicio min-h-svh"}>
       <Chispas>
         <ScrollProgress className="h-0.5 from-[#39d5ff] via-[#7c5cff] to-[#39d5ff]" />
         <CursorLuz />

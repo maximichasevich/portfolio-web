@@ -4,7 +4,6 @@ import { useState } from "react"
 import { ArrowUpRight, Check, Copy, Mail, MessageCircle, X } from "lucide-react"
 import { Dialog } from "radix-ui"
 
-import { fuentesInicio } from "@/components/inicio/fuentes"
 import { linkEmail, linkWhatsapp, perfil } from "@/data/perfil"
 import { ejemplos } from "@/data/trabajo"
 import { useHoraMontevideo } from "@/hooks/use-hora-montevideo"
@@ -55,7 +54,7 @@ export function MenuHud({
       <Dialog.Portal>
         <Dialog.Overlay className="menu-hud-fondo fixed inset-0 z-[60] bg-[#05060f]/80 backdrop-blur-md" />
         <Dialog.Content
-          className={`inicio menu-hud ${fuentesInicio} fixed inset-0 z-[61] overflow-y-auto`}
+          className="inicio menu-hud fixed inset-0 z-[61] overflow-y-auto"
         >
           <Dialog.Title className="sr-only">Menú principal</Dialog.Title>
           <Dialog.Description className="sr-only">
