@@ -45,7 +45,7 @@ Cada carpeta tiene su propio README con más detalle.
 ├── demo-la-espiga/       Demo 1
 ├── demo-estudio-faro/    Demo 2
 ├── demo-verde-tienda/    Demo 3
-├── supabase/mensajes.sql Tabla y reglas de seguridad de los mensajes
+├── supabase/migrations/ Tabla y reglas de seguridad de los mensajes
 └── docs/                 Guía de publicación y notas de diseño
 ```
 

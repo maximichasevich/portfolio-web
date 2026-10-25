@@ -13,7 +13,7 @@ Las cuentas de los tres servicios son gratis para este uso.
    - Región: elegí **São Paulo (South America)**, la más cercana a Uruguay.
 2. Esperá un par de minutos a que se cree el proyecto.
 3. En el menú de la izquierda, abrí **SQL Editor** y tocá **New query**.
-4. Copiá todo el contenido de [`supabase/mensajes.sql`](../supabase/mensajes.sql), pegalo y tocá **Run**. Tiene que decir *Success*.
+4. Copiá todo el contenido de [`supabase/migrations/`](../supabase/migrations/), pegalo y tocá **Run**. Tiene que decir *Success*.
 5. Buscá las claves en **Project Settings → API**, o en el botón **Connect** de arriba:
    - **Project URL** (algo como `https://abcd1234.supabase.co`): es `SUPABASE_URL`.
    - **Clave pública**, llamada `anon public` o `publishable`: es `SUPABASE_ANON_KEY`.

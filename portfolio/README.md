@@ -49,13 +49,14 @@ Environment variables*.
 |---|---|
 | `SUPABASE_URL` | Dirección del proyecto de Supabase |
 | `SUPABASE_ANON_KEY` | Clave pública (anon o publishable) de Supabase |
+| `MENSAJES_SAL` | Texto secreto al azar para la huella anónima del límite de envíos |
 | `NEXT_PUBLIC_SITE_URL` | Dirección pública del portfolio, por ejemplo tu dominio |
 | `NEXT_PUBLIC_DEMO_*_URL` | Direcciones publicadas de las tres demos |
 
 ## Formulario de contacto
 
-- **Dónde se guarda:** en la tabla `mensajes` de Supabase. El código para crearla está en `../supabase/mensajes.sql`.
-- **Cómo se guarda:** desde el servidor, con la acción de `app/acciones/contacto.ts`. Valida los datos y descarta robots con un campo trampa invisible.
+- **Dónde se guarda:** en la tabla `mensajes` de Supabase. El código para crearla está en `../supabase/migrations/`.
+- **Cómo se guarda:** desde el servidor, con la acción de `app/acciones/contacto.ts`. Valida los datos y frena robots con un campo trampa invisible, un tiempo mínimo de 3 segundos y un límite de 5 mensajes por hora por visitante (100 por hora en total).
 - **Seguridad:** la tabla solo permite insertar mensajes con la clave pública. Los mensajes se leen únicamente desde el panel de Supabase.
 
 ## Estructura

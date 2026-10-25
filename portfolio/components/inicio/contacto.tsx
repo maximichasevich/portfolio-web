@@ -11,6 +11,7 @@ import { Meteors } from "@/components/ui/meteors"
 import { ShimmerButton } from "@/components/ui/shimmer-button"
 import { perfil } from "@/data/perfil"
 import { paquetes } from "@/data/precios"
+import { LIMITES } from "@/lib/limites-contacto"
 import { useHoraMontevideo } from "@/hooks/use-hora-montevideo"
 import { cn } from "@/lib/utils"
 
@@ -179,6 +180,16 @@ export function Contacto() {
                 className="relative mt-8 flex flex-col gap-7"
                 noValidate
               >
+                {/* Momento en que el formulario apareció en pantalla (tiempo mínimo
+                    anti-robots). Se escribe en el navegador, sin estado de React. */}
+                <input
+                  ref={(el) => {
+                    if (el && !el.value) el.value = String(Date.now())
+                  }}
+                  type="hidden"
+                  name="inicio"
+                  defaultValue=""
+                />
                 <input type="hidden" name="resumen" value={resumen} />
                 {/* Campo trampa contra robots: invisible para las personas. */}
                 <div className="absolute -left-[9999px]" aria-hidden="true">
@@ -238,6 +249,7 @@ export function Contacto() {
                       id={`${idBase}-nombre`}
                       nombre="nombre"
                       etiqueta="Tu nombre"
+                      maximo={LIMITES.nombre}
                       valor={nombre}
                       onCambio={setNombre}
                       autoComplete="name"
@@ -248,6 +260,7 @@ export function Contacto() {
                       id={`${idBase}-negocio`}
                       nombre="negocio"
                       etiqueta="Tu negocio (opcional)"
+                      maximo={100}
                       valor={negocio}
                       onCambio={setNegocio}
                       autoComplete="organization"
@@ -257,6 +270,7 @@ export function Contacto() {
                       nombre="email"
                       tipo="email"
                       etiqueta="Tu correo"
+                      maximo={LIMITES.email}
                       valor={email}
                       onCambio={setEmail}
                       autoComplete="email"
@@ -268,6 +282,7 @@ export function Contacto() {
                       nombre="telefono"
                       tipo="tel"
                       etiqueta="Teléfono o WhatsApp (opcional)"
+                      maximo={LIMITES.telefono}
                       valor={telefono}
                       onCambio={setTelefono}
                       autoComplete="tel"
@@ -302,6 +317,7 @@ export function Contacto() {
                         id={`${idBase}-mensaje`}
                         name="mensaje"
                         rows={4}
+                        maxLength={LIMITES.mensaje}
                         value={escrito}
                         onChange={(e) => setEscrito(e.target.value)}
                         placeholder="Contame en pocas palabras qué hace tu negocio y qué necesitás."
@@ -549,6 +565,7 @@ function Campo({
   tipo = "text",
   error,
   requerido = false,
+  maximo,
 }: {
   id: string
   /** Nombre del campo en el formulario (lo lee la acción de servidor). */
@@ -561,6 +578,8 @@ function Campo({
   tipo?: "text" | "email" | "tel"
   error?: string
   requerido?: boolean
+  /** Largo máximo permitido. */
+  maximo?: number
 }) {
   const controlado =
     valor !== undefined
@@ -583,6 +602,7 @@ function Campo({
         placeholder={etiqueta}
         autoComplete={autoComplete}
         required={requerido}
+        maxLength={maximo}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
         className={cn(
