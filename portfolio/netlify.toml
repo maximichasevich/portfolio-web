@@ -17,3 +17,10 @@
 # Los encabezados de seguridad (CSP, HSTS, etc.) están en next.config.ts:
 # en Netlify las páginas de Next.js se sirven con funciones y a esas
 # respuestas no se les aplican los encabezados de este archivo.
+
+# La dirección de Netlify lleva siempre al dominio propio.
+[[redirects]]
+  from = "https://michasevich.netlify.app/*"
+  to = "https://michasevich.com/:splat"
+  status = 301
+  force = true

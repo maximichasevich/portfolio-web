@@ -11,7 +11,8 @@ Qué está publicado, dónde y cómo hacer cambios.
 | Estudio Faro | https://estudiofaro.michasevich.com | `michasevich-estudiofaro` | `demo-estudio-faro/` |
 | Verde Tienda | https://verdetienda.michasevich.com | `michasevich-verdetienda` | `demo-verde-tienda/` |
 
-Cada sitio también responde en `https://<sitio-en-netlify>.netlify.app`.
+Las direcciones `https://<sitio-en-netlify>.netlify.app` redirigen al dominio
+propio. La regla está al final del `netlify.toml` de cada carpeta.
 
 | Servicio | Dónde |
 |---|---|
