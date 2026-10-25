@@ -1,5 +1,11 @@
 # Maximiliano Michasevich · Portfolio web
 
+> **Este repositorio está archivado.** Cada sitio ahora tiene su propio repositorio:
+> [michasevich-portfolio](https://github.com/maximichasevich/michasevich-portfolio) ·
+> [demo-la-espiga](https://github.com/maximichasevich/demo-la-espiga) ·
+> [demo-estudio-faro](https://github.com/maximichasevich/demo-estudio-faro) ·
+> [demo-verde-tienda](https://github.com/maximichasevich/demo-verde-tienda)
+
 Diseño y desarrollo de páginas web a medida desde Montevideo, Uruguay.
 
 Este repositorio tiene **cuatro sitios independientes**: mi portfolio, donde
