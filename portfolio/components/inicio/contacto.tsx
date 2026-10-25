@@ -177,17 +177,29 @@ export function Contacto() {
 
               <form
                 action={accion}
+                onSubmit={(e) => {
+                  const campo = e.currentTarget.elements.namedItem(
+                    "demora"
+                  ) as HTMLInputElement | null
+                  if (campo?.dataset.inicio)
+                    campo.value = String(
+                      Math.round(
+                        performance.now() - Number(campo.dataset.inicio)
+                      )
+                    )
+                }}
                 className="relative mt-8 flex flex-col gap-7"
                 noValidate
               >
-                {/* Momento en que el formulario apareció en pantalla (tiempo mínimo
-                    anti-robots). Se escribe en el navegador, sin estado de React. */}
+                {/* Cuánto tardó en completarse (tiempo mínimo anti-robots). Se mide
+                    en el navegador para no depender de la hora de cada reloj. */}
                 <input
                   ref={(el) => {
-                    if (el && !el.value) el.value = String(Date.now())
+                    if (el && !el.dataset.inicio)
+                      el.dataset.inicio = String(performance.now())
                   }}
                   type="hidden"
-                  name="inicio"
+                  name="demora"
                   defaultValue=""
                 />
                 <input type="hidden" name="resumen" value={resumen} />

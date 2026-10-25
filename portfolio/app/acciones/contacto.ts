@@ -60,9 +60,9 @@ export async function enviarMensaje(
   // Campo trampa: las personas no lo ven; los robots lo completan.
   if (texto(datos.get("sitio_web"))) return respuestaOk
 
-  // Tiempo mínimo: el formulario guarda cuándo empezó a completarse.
-  const inicio = Number(texto(datos.get("inicio")))
-  if (inicio > 0 && Date.now() - inicio < MINIMO_MS) return respuestaOk
+  // Tiempo mínimo: el navegador mide cuánto tardó en completarse.
+  const demora = Number(texto(datos.get("demora")))
+  if (demora > 0 && demora < MINIMO_MS) return respuestaOk
 
   const nombre = texto(datos.get("nombre"))
   const email = texto(datos.get("email"))

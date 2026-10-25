@@ -1,6 +1,5 @@
 # Configuración de Netlify para este proyecto.
 # En Netlify, la "Base directory" es el nombre de esta carpeta.
-# Netlify detecta Next.js y aplica su adaptador automáticamente.
 
 [build]
   command = "npm run build"
@@ -15,23 +14,6 @@
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
 
-# ---------------------------------------------------------------------
-# Encabezados de seguridad para todas las páginas.
-# ---------------------------------------------------------------------
-# Content-Security-Policy: solo se cargan recursos del propio sitio, más el
-# traductor de Google (selector de idioma). 'unsafe-inline' en scripts es
-# necesario porque las páginas son estáticas y Next.js incluye pequeños
-# scripts en línea; no hay ningún script de terceros además del traductor.
-# Strict-Transport-Security: el navegador recuerda usar siempre HTTPS
-# (2 años, también en subdominios). Sin "preload" a propósito: es difícil
-# de deshacer.
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://translate.googleapis.com https://www.gstatic.com; img-src 'self' data: blob: https://www.gstatic.com https://fonts.gstatic.com https://translate.google.com https://translate.googleapis.com https://www.google.com; font-src 'self' data:; connect-src 'self' https://translate.googleapis.com https://translate-pa.googleapis.com https://translate.google.com; frame-src 'self' https://translate.google.com https://translate.googleapis.com; worker-src 'self' blob:; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
-    Strict-Transport-Security = "max-age=63072000; includeSubDomains"
-    X-Frame-Options = "SAMEORIGIN"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
-    Cross-Origin-Opener-Policy = "same-origin"
+# Los encabezados de seguridad (CSP, HSTS, etc.) están en next.config.ts:
+# en Netlify las páginas de Next.js se sirven con funciones y a esas
+# respuestas no se les aplican los encabezados de este archivo.
