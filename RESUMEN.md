@@ -280,3 +280,23 @@ solo en horizontal para no trabar el scroll) o con las flechas del teclado,
 con inercia. Pasar el mouse por un satélite lo destaca y frena las órbitas;
 tocarlo lo fija y muestra qué significa en la ficha de abajo a la izquierda.
 Se pausa fuera de pantalla. Reemplaza al globo con órbitas planas anterior.
+
+## Más 3D, interacción y rendimiento
+
+- **Modelos 3D nuevos** (`components/inicio/modelos-3d.tsx`, CSS 3D sin
+  librerías): un cubo de capacidades en "Qué hago" que gira solo y se
+  arrastra, y la "Anatomía de una web" en "Por qué conmigo": cinco capas que
+  se separan al entrar en pantalla, se giran arrastrando y explican cada
+  parte al pasar el mouse o tocarlas.
+- **Interacciones** (`components/inicio/interacciones.tsx`): tarjetas que se
+  inclinan en 3D hacia el cursor con reflejo de luz (servicios, razones,
+  precios, compromisos y el carrusel), botones magnéticos en la portada y una
+  luz suave que sigue al cursor. El título principal reacciona al mouse
+  palabra por palabra (`titulo-vivo.tsx`) y los precios cuentan hasta su
+  valor.
+- **Optimización:** el haz de luz pasó de JavaScript a CSS, el globo 3D se
+  monta después de la carga inicial, las capturas del carrusel se piden
+  recién al acercarse, la segunda capa de partículas no se carga en celular,
+  menos cuadros en la grilla y una variante menos de la fuente Syne.
+  Lighthouse en celular: de 73 a 89 puntos, el contenido principal de 5,2 a
+  3,7 s y el peso inicial de 795 a 462 KB.

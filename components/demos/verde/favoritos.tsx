@@ -83,7 +83,7 @@ export function CajonFavoritos() {
                   <button
                     type="button"
                     className="vt-boton h-9 px-3.5 text-sm"
-                    onClick={() => agregar(p.id)}
+                    onClick={(e) => agregar(p.id, { origen: e.currentTarget })}
                   >
                     <ShoppingBag className="size-4" aria-hidden="true" /> Agregar
                   </button>

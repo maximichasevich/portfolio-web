@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Dialog, RadioGroup } from "radix-ui"
 import {
   ArrowLeft,
@@ -10,11 +10,14 @@ import {
   Check,
   ChevronDown,
   CreditCard,
+  Gift,
   Info,
   Loader2,
   Lock,
   MapPin,
   PartyPopper,
+  Sprout,
+  Star,
   Wallet,
   X,
 } from "lucide-react"
@@ -25,11 +28,18 @@ import { pesos } from "@/lib/demo"
 import {
   DESCUENTO_TRANSFERENCIA,
   buscarPlanta,
-  costoEnvio,
   envios,
   precioVariante,
   textoVariante,
 } from "@/components/demos/verde/catalogo"
+import {
+  COSTO_ENVOLTORIO,
+  buscarColor,
+  envioConCupon,
+  puntosDe,
+} from "@/components/demos/verde/extras"
+import { confeti } from "@/components/demos/verde/efectos"
+import { CampoCupon } from "@/components/demos/verde/cupon"
 import { useTienda, type Pedido } from "@/components/demos/verde/estado"
 import { Campo, Logo, capa, fondo } from "@/components/demos/verde/ui"
 import {
@@ -99,6 +109,8 @@ function Flujo() {
     usuario,
     carrito,
     subtotal,
+    descuentoCupon,
+    cuponActivo,
     direcciones,
     registrarPedido,
     vaciarCarrito,
@@ -127,12 +139,19 @@ function Flujo() {
   const [errores, setErrores] = useState<Record<string, string | undefined>>({})
   const [procesando, setProcesando] = useState(false)
   const [pedido, setPedido] = useState<Pedido | null>(null)
+  const [regalo, setRegalo] = useState(false)
+  const [para, setPara] = useState("")
+  const [mensaje, setMensaje] = useState("")
+  const [envolver, setEnvolver] = useState(true)
 
   const zona = envios.find((z) => z.id === zonaId) ?? envios[1]
-  const envio = costoEnvio(zona, subtotal)
+  const envio = envioConCupon(zona, subtotal, cuponActivo)
+  const conCupon = subtotal - descuentoCupon
   const descuento =
-    metodo === "transferencia" ? Math.round(subtotal * DESCUENTO_TRANSFERENCIA) : 0
-  const total = subtotal + (paso >= 1 ? envio : 0) - (paso >= 2 ? descuento : 0)
+    metodo === "transferencia" ? Math.round(conCupon * DESCUENTO_TRANSFERENCIA) : 0
+  const envoltorio = regalo && envolver ? COSTO_ENVOLTORIO : 0
+  const totalFinal = conCupon + envio + envoltorio - descuento
+  const total = conCupon + (paso >= 1 ? envio + envoltorio : 0) - (paso >= 2 ? descuento : 0)
   const esRetiro = zona.id === "retiro"
 
   function validar(): boolean {
@@ -145,11 +164,12 @@ function Flujo() {
         email: validarEmail(datos.email),
         telefono: validarTelefono(datos.telefono),
       })
-    } else if (paso === 1 && !esRetiro) {
+    } else if (paso === 1) {
       prefijo = "co-"
       nuevos = limpiarErrores({
-        calle: validarObligatorio(dir.calle, "Poné la calle y el número de la entrega."),
-        barrio: validarObligatorio(dir.barrio, "Poné el barrio o la ciudad."),
+        calle: esRetiro ? undefined : validarObligatorio(dir.calle, "Poné la calle y el número de la entrega."),
+        barrio: esRetiro ? undefined : validarObligatorio(dir.barrio, "Poné el barrio o la ciudad."),
+        para: regalo ? validarObligatorio(para, "¿Para quién es el regalo?") : undefined,
       })
     }
     setErrores(nuevos)
@@ -182,7 +202,7 @@ function Flujo() {
           return [
             {
               nombre: p.nombre,
-              variante: textoVariante(p, l.tamanoId, l.macetaId),
+              variante: textoVariante(p, l.tamanoId, l.macetaId, l.colorId ? buscarColor(l.colorId).nombre : undefined),
               cantidad: l.cantidad,
               precio: precioVariante(p, l.tamanoId, l.macetaId),
             },
@@ -191,7 +211,13 @@ function Flujo() {
         subtotal,
         envio,
         descuento,
-        total: subtotal + envio - descuento,
+        total: totalFinal,
+        cupon: cuponActivo?.codigo,
+        descuentoCupon,
+        envoltorio,
+        regalo: regalo ? { para: para.trim(), mensaje: mensaje.trim() } : null,
+        puntos: puntosDe(totalFinal),
+        plantaIds: [...new Set(carrito.map((l) => l.plantaId))],
         zona: zona.nombre,
         direccion: esRetiro
           ? "Retiro en Camino Carrasco 5120"
@@ -309,7 +335,7 @@ function Flujo() {
               </span>
             </summary>
             <div className="border-t-2 border-[var(--vt-tinta-15)] p-4">
-              <Resumen paso={paso} envio={envio} descuento={descuento} zonaNombre={zona.nombre} />
+              <Resumen paso={paso} envio={envio} descuento={descuento} envoltorio={envoltorio} zonaNombre={zona.nombre} />
             </div>
           </details>
 
@@ -391,7 +417,7 @@ function Flujo() {
                       className="mt-6 grid gap-2.5"
                     >
                       {envios.map((z) => {
-                        const costo = costoEnvio(z, subtotal)
+                        const costo = envioConCupon(z, subtotal, cuponActivo)
                         return (
                           <RadioGroup.Item
                             key={z.id}
@@ -499,6 +525,19 @@ function Flujo() {
                         )}
                       </div>
                     )}
+
+                    <OpcionRegalo
+                      activo={regalo}
+                      onActivo={setRegalo}
+                      para={para}
+                      onPara={setPara}
+                      mensaje={mensaje}
+                      onMensaje={setMensaje}
+                      envolver={envolver}
+                      onEnvolver={setEnvolver}
+                      error={errores.para}
+                      remitente={datos.nombre}
+                    />
                   </section>
                 )}
 
@@ -607,7 +646,7 @@ function Flujo() {
                     Procesando pago de prueba…
                   </>
                 ) : paso === 2 ? (
-                  <>Confirmar · {pesos(subtotal + envio - descuento)}</>
+                  <>Confirmar · {pesos(totalFinal)}</>
                 ) : (
                   <>
                     Continuar <ArrowRight className="size-5" aria-hidden="true" />
@@ -624,7 +663,7 @@ function Flujo() {
             <div className="vt-tarjeta sticky top-36 p-5">
               <p className="vt-titulo text-2xl">Tu pedido</p>
               <div className="mt-4">
-                <Resumen paso={paso} envio={envio} descuento={descuento} zonaNombre={zona.nombre} />
+                <Resumen paso={paso} envio={envio} descuento={descuento} envoltorio={envoltorio} zonaNombre={zona.nombre} />
               </div>
             </div>
           </aside>
@@ -638,15 +677,18 @@ function Resumen({
   paso,
   envio,
   descuento,
+  envoltorio,
   zonaNombre,
 }: {
   paso: number
   envio: number
   descuento: number
+  envoltorio: number
   zonaNombre: string
 }) {
-  const { carrito, subtotal } = useTienda()
-  const total = subtotal + (paso >= 1 ? envio : 0) - (paso >= 2 ? descuento : 0)
+  const { carrito, subtotal, descuentoCupon, cuponActivo } = useTienda()
+  const total =
+    subtotal - descuentoCupon + (paso >= 1 ? envio + envoltorio : 0) - (paso >= 2 ? descuento : 0)
   return (
     <div>
       <ul className="space-y-3">
@@ -664,7 +706,7 @@ function Resumen({
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-bold">{p.nombre}</span>
                 <span className="block truncate text-xs text-[var(--vt-tinta-70)]">
-                  {textoVariante(p, l.tamanoId, l.macetaId)}
+                  {textoVariante(p, l.tamanoId, l.macetaId, l.colorId ? buscarColor(l.colorId).nombre : undefined)}
                 </span>
               </span>
               <span className="text-sm font-bold tabular-nums">
@@ -674,17 +716,30 @@ function Resumen({
           )
         })}
       </ul>
+      <CampoCupon id="co-cupon" className="mt-4" />
       <dl className="mt-4 space-y-1.5 border-t-2 border-dashed border-[var(--vt-tinta-15)] pt-4 text-sm">
         <div className="flex justify-between">
           <dt>Subtotal</dt>
           <dd className="tabular-nums">{pesos(subtotal)}</dd>
         </div>
+        {descuentoCupon > 0 && (
+          <div className="flex justify-between text-[var(--vt-hoja)]">
+            <dt>Cupón {cuponActivo?.codigo}</dt>
+            <dd className="tabular-nums">−{pesos(descuentoCupon)}</dd>
+          </div>
+        )}
         <div className="flex justify-between gap-3">
           <dt>Envío{paso >= 1 && ` · ${zonaNombre}`}</dt>
           <dd className="tabular-nums">
             {paso < 1 ? "Se calcula después" : envio === 0 ? "Gratis" : pesos(envio)}
           </dd>
         </div>
+        {paso >= 1 && envoltorio > 0 && (
+          <div className="flex justify-between">
+            <dt>Envoltorio de regalo</dt>
+            <dd className="tabular-nums">{pesos(envoltorio)}</dd>
+          </div>
+        )}
         {paso >= 2 && descuento > 0 && (
           <div className="flex justify-between text-[var(--vt-hoja)]">
             <dt>Descuento transferencia</dt>
@@ -713,7 +768,13 @@ function Confirmacion({
   onPedidos: () => void
   onSeguir: () => void
 }) {
-  const { usuario, entrar } = useTienda()
+  const { usuario, entrar, abrirCuenta } = useTienda()
+  const tiradoRef = useRef(false)
+  useEffect(() => {
+    if (tiradoRef.current) return
+    tiradoRef.current = true
+    confeti()
+  }, [])
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-10 md:py-16">
       <motion.div
@@ -739,7 +800,37 @@ function Confirmacion({
           En la tienda real te llegaría el comprobante a {datos.email}.{" "}
           Es una demo: no se cobró nada.
         </p>
+        {pedido.puntos ? (
+          <p className="mt-4 inline-flex items-center gap-1.5 rounded-full border-2 border-[var(--vt-tinta)] bg-[var(--vt-papel)] px-3 py-1.5 text-sm font-extrabold">
+            <Star className="size-4 fill-[var(--vt-coral)]" aria-hidden="true" /> Sumaste {pedido.puntos} puntos verdes
+          </p>
+        ) : null}
       </motion.div>
+
+      {pedido.regalo && (
+        <div className="vt-tarjeta mt-5 flex gap-3 p-5 text-sm">
+          <Gift className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+          <p>
+            <strong className="font-extrabold">Va de regalo para {pedido.regalo.para}.</strong>{" "}
+            {pedido.regalo.mensaje ? `La tarjeta dice: “${pedido.regalo.mensaje}”.` : "Sin mensaje en la tarjeta."} La caja no lleva el precio.
+          </p>
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => {
+          if (!usuario) entrar({ ...datos, invitado: false })
+          abrirCuenta("plantas")
+        }}
+        className="mt-5 flex w-full items-center gap-3 rounded-[28px] border-2 border-[var(--vt-tinta)] bg-[var(--vt-cielo)] p-4 text-left text-sm transition-transform hover:-rotate-1"
+      >
+        <Sprout className="size-6 shrink-0" aria-hidden="true" />
+        <span>
+          <strong className="block font-extrabold">Te activamos los recordatorios de riego</strong>
+          Tus plantas nuevas ya están en «Mis plantas», con su calendario.
+        </span>
+      </button>
 
       {metodo === "transferencia" && (
         <div className="vt-tarjeta mt-5 p-5 text-sm">
@@ -804,6 +895,118 @@ function Confirmacion({
           Seguir comprando
         </button>
       </div>
+    </div>
+  )
+}
+
+/* ---------- Envío para regalar ---------- */
+
+function OpcionRegalo({
+  activo,
+  onActivo,
+  para,
+  onPara,
+  mensaje,
+  onMensaje,
+  envolver,
+  onEnvolver,
+  error,
+  remitente,
+}: {
+  activo: boolean
+  onActivo: (v: boolean) => void
+  para: string
+  onPara: (v: string) => void
+  mensaje: string
+  onMensaje: (v: string) => void
+  envolver: boolean
+  onEnvolver: (v: boolean) => void
+  error?: string
+  remitente: string
+}) {
+  const max = 160
+  return (
+    <div className="mt-6 rounded-[28px] border-2 border-[var(--vt-tinta)] bg-[var(--vt-rosa)] p-4 sm:p-5">
+      <label className="flex cursor-pointer items-center gap-3">
+        <input
+          type="checkbox"
+          checked={activo}
+          onChange={(e) => onActivo(e.target.checked)}
+          className="size-5 accent-[var(--vt-hoja)]"
+        />
+        <span className="grid size-10 shrink-0 place-items-center rounded-full border-2 border-[var(--vt-tinta)] bg-[var(--vt-papel)]">
+          <Gift className="size-5" aria-hidden="true" />
+        </span>
+        <span>
+          <span className="block font-extrabold">Es para regalar</span>
+          <span className="block text-sm text-[var(--vt-tinta-70)]">Con tarjeta escrita a mano y sin precio en la caja.</span>
+        </span>
+      </label>
+      <AnimatePresence initial={false}>
+        {activo && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="mt-4 grid gap-4 md:grid-cols-[1fr_15rem]"
+          >
+            <div className="space-y-4">
+              <Campo
+                id="co-para"
+                etiqueta="¿Para quién es?"
+                placeholder="Nombre de quien la recibe"
+                value={para}
+                onChange={(e) => onPara(e.target.value)}
+                error={error}
+              />
+              <div>
+                <label htmlFor="co-mensaje" className="mb-1.5 block text-sm font-bold">
+                  Mensaje para la tarjeta (opcional)
+                </label>
+                <textarea
+                  id="co-mensaje"
+                  rows={3}
+                  maxLength={max}
+                  value={mensaje}
+                  onChange={(e) => onMensaje(e.target.value)}
+                  placeholder="¡Feliz cumple! Que crezca tanto como nuestra amistad."
+                  aria-describedby="co-mensaje-cuenta"
+                  className="vt-campo resize-none"
+                />
+                <p id="co-mensaje-cuenta" className="mt-1 text-right text-xs text-[var(--vt-tinta-70)] tabular-nums">
+                  {mensaje.length}/{max}
+                </p>
+              </div>
+              <label className="flex items-center gap-2.5 text-sm font-semibold">
+                <input
+                  type="checkbox"
+                  checked={envolver}
+                  onChange={(e) => onEnvolver(e.target.checked)}
+                  className="size-5 accent-[var(--vt-hoja)]"
+                />
+                Envolver con papel kraft y moño (+{pesos(COSTO_ENVOLTORIO)})
+              </label>
+            </div>
+            {/* Vista previa de la tarjeta */}
+            <div aria-hidden="true" className="relative self-start">
+              <div className="rotate-2 rounded-2xl border-2 border-[var(--vt-tinta)] bg-[var(--vt-papel)] p-4 shadow-[3px_3px_0_var(--vt-tinta)]">
+                <p className="text-[11px] font-extrabold tracking-wider text-[var(--vt-tinta-70)] uppercase">Tarjeta</p>
+                <p className="vt-titulo mt-2 text-xl">Para {para.trim() || "…"}</p>
+                <p className="mt-2 min-h-12 text-sm leading-snug break-words">
+                  {mensaje.trim() || "Tu mensaje va acá."}
+                </p>
+                <p className="mt-3 text-right text-sm font-bold">— {remitente.trim().split(" ")[0] || "Vos"}</p>
+              </div>
+              {envolver && (
+                <span className="vt-sticker absolute -top-3 -right-1 bg-[var(--vt-manteca)]" style={{ "--giro": "8deg" } as React.CSSProperties}>
+                  Con moño
+                </span>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

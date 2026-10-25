@@ -9,6 +9,12 @@
 import { useSyncExternalStore } from "react"
 
 import { carta, productoPorId } from "@/components/demos/espiga/carta"
+import {
+  decoraciones,
+  tortaInicial,
+  type ConfigTorta,
+  type Decoracion,
+} from "@/components/demos/espiga/contenido"
 import { pesos } from "@/lib/demo"
 
 type Actualizar<T> = T | ((anterior: T) => T)
@@ -341,3 +347,116 @@ const relojServidor = () => null
 export function useAhora(): number | null {
   return useSyncExternalStore(suscribirReloj, leerReloj, relojServidor)
 }
+
+/* ---------- Movimiento: pausa general de animaciones ---------- */
+
+const quieto = crearAlmacen<boolean>("espiga:quieto", false, (v) =>
+  typeof v === "boolean" ? v : null
+)
+export const useQuieto = () => useAlmacen(quieto)
+export const alternarQuieto = () => quieto.set((v) => !v)
+/** Para los bucles de animación, que no re-renderizan React. */
+export const estaQuieto = () => quieto.get()
+export const suscribirQuieto = (o: () => void) => quieto.subscribe(o)
+
+/* ---------- Ficha de producto abierta ---------- */
+
+const ficha = crearAlmacen<string | null>(null, null)
+export const useFicha = () => useAlmacen(ficha)
+export const abrirFicha = (id: string | null) => ficha.set(id)
+
+/* ---------- Torta a medida ---------- */
+
+const torta = crearAlmacen<ConfigTorta>("espiga:torta", tortaInicial, (v) => {
+  if (!esObjeto(v)) return null
+  const texto = (k: string, d: string) =>
+    typeof v[k] === "string" ? String(v[k]) : d
+  const pisos = v.pisos === 1 || v.pisos === 3 ? v.pisos : 2
+  const ids = decoraciones.map((d) => d.id as string)
+  return {
+    pisos,
+    bizcochuelo: texto("bizcochuelo", tortaInicial.bizcochuelo),
+    relleno: texto("relleno", tortaInicial.relleno),
+    cobertura: texto("cobertura", tortaInicial.cobertura),
+    deco: Array.isArray(v.deco)
+      ? (v.deco.filter(
+          (d) => typeof d === "string" && ids.includes(d)
+        ) as Decoracion[])
+      : tortaInicial.deco,
+    cartel: texto("cartel", tortaInicial.cartel).slice(0, 18),
+  }
+})
+export const useTorta = () => useAlmacen(torta)
+export const cambiarTorta = (c: Partial<ConfigTorta>) =>
+  torta.set((t) => ({ ...t, ...c }))
+
+/* ---------- Tarjeta de la casa (sellos) ---------- */
+
+export type Tarjeta = { mostrador: number; canjeados: number }
+
+const tarjeta = crearAlmacen<Tarjeta>(
+  "espiga:tarjeta",
+  { mostrador: 0, canjeados: 0 },
+  (v) =>
+    esObjeto(v)
+      ? {
+          mostrador: Math.max(0, Number(v.mostrador) || 0),
+          canjeados: Math.max(0, Number(v.canjeados) || 0),
+        }
+      : null
+)
+export const useTarjeta = () => useAlmacen(tarjeta)
+export const sellarEnMostrador = () =>
+  tarjeta.set((t) => ({ ...t, mostrador: t.mostrador + 1 }))
+export const canjearTarjeta = () =>
+  tarjeta.set((t) => ({ ...t, canjeados: t.canjeados + 1 }))
+
+/** Panes comprados en los pedidos guardados: cada uno es un sello. */
+export function panesEnPedidos(lista: PedidoGuardado[]) {
+  let n = 0
+  for (const p of lista) {
+    for (const i of p.items) {
+      if (productoPorId.get(i.id)?.categoria === "panes") n += i.cantidad
+    }
+  }
+  return n
+}
+
+/* ---------- Pan de la semana (suscripción) ---------- */
+
+export type Suscripcion = {
+  pan: string
+  dias: number[]
+  franja: string
+  modalidad: Modalidad
+  pausada: boolean
+  desde: number
+}
+
+const suscripcion = crearAlmacen<Suscripcion | null>(
+  "espiga:suscripcion",
+  null,
+  (v) => {
+    if (!esObjeto(v) || !Array.isArray(v.dias)) return null
+    return {
+      pan: typeof v.pan === "string" ? v.pan : "campo",
+      dias: v.dias.filter(
+        (d): d is number => typeof d === "number" && d >= 1 && d <= 6
+      ),
+      franja: typeof v.franja === "string" ? v.franja : "",
+      modalidad: v.modalidad === "domicilio" ? "domicilio" : "local",
+      pausada: v.pausada === true,
+      desde: typeof v.desde === "number" ? v.desde : Date.now(),
+    }
+  }
+)
+export const useSuscripcion = () => useAlmacen(suscripcion)
+export const guardarSuscripcion = (
+  s: (Omit<Suscripcion, "desde"> & { desde?: number }) | null
+) => suscripcion.set(s ? { ...s, desde: s.desde ?? Date.now() } : null)
+
+/* ---------- Tipo de encargo elegido en la nota ---------- */
+
+const tipoEncargo = crearAlmacen<string>(null, "Torta")
+export const useTipoEncargo = () => useAlmacen(tipoEncargo)
+export const elegirTipoEncargo = (t: string) => tipoEncargo.set(t)

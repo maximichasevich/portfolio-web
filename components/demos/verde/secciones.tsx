@@ -224,7 +224,11 @@ const preguntas = [
   },
   {
     p: "¿Puedo mandarla de regalo?",
-    r: "¡Claro! En el checkout poné la dirección de quien la recibe y en indicaciones el mensaje para la tarjeta. No incluimos el precio en la caja.",
+    r: "¡Claro! En el checkout marcá «Es para regalar»: escribís el mensaje de la tarjeta, elegís si va envuelta con moño y la mandamos sin el precio en la caja.",
+  },
+  {
+    p: "¿Tienen cupones de descuento?",
+    r: "Sí: con PRIMERAPLANTA tenés 10% en tu primera compra, y sumando puntos verdes en cada pedido los canjeás por descuentos desde Mi cuenta. Los códigos se ponen en el carrito.",
   },
 ]
 

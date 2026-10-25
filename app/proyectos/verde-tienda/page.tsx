@@ -2,7 +2,6 @@ import Image from "next/image"
 import {
   ArrowDown,
   CreditCard,
-  AtSign,
   MapPin,
   MessageCircle,
   ShieldCheck,
@@ -11,8 +10,6 @@ import {
   Truck,
 } from "lucide-react"
 
-import { BannerDemo } from "@/components/demos/banner-demo"
-import { CreditosFotos } from "@/components/demos/creditos-fotos"
 import { fotosVerde } from "@/components/demos/fotos"
 import { pesos, whatsappDemo } from "@/lib/demo"
 import {
@@ -20,8 +17,7 @@ import {
   buscarPlanta,
   resenas,
 } from "@/components/demos/verde/catalogo"
-import { Anuncio, Encabezado } from "@/components/demos/verde/encabezado"
-import { Catalogo } from "@/components/demos/verde/productos"
+import { Catalogo, VistosRecientes } from "@/components/demos/verde/productos"
 import { Quiz } from "@/components/demos/verde/quiz"
 import {
   CategoriasHistorias,
@@ -29,8 +25,13 @@ import {
   Newsletter,
   Preguntas,
 } from "@/components/demos/verde/secciones"
-import { Tienda } from "@/components/demos/verde/tienda"
-import { Logo } from "@/components/demos/verde/ui"
+import {
+  SeccionArmador,
+  SeccionClub,
+  SeccionHerramientas,
+  SeccionProbador,
+} from "@/components/demos/verde/perezosos"
+import { BrisaPortada } from "@/components/demos/verde/brisa-portada"
 
 const beneficios = [
   {
@@ -74,17 +75,8 @@ const consulta = whatsappDemo(
 
 export default function Page() {
   return (
-    <Tienda>
-      <a
-        href="#catalogo"
-        className="sr-only z-[80] rounded-full bg-[var(--vt-manteca)] px-4 py-2 font-bold focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-      >
-        Saltar a la tienda
-      </a>
-      <Anuncio />
-      <Encabezado />
-
-      <main id="inicio">
+    <>
+      <main id="contenido">
         {/* ---------- Portada ---------- */}
         <section className="relative overflow-hidden">
           <div className="mx-auto grid max-w-7xl gap-10 px-4 pt-8 pb-10 md:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-6 lg:pt-14 lg:pb-16">
@@ -157,6 +149,7 @@ export default function Page() {
               <span className="vt-sticker absolute right-[2%] bottom-[16%] bg-[var(--vt-papel)] text-sm" style={{ "--giro": "6deg" } as React.CSSProperties}>
                 Monstera desde {pesos(890)}
               </span>
+              <BrisaPortada />
             </div>
           </div>
 
@@ -202,6 +195,50 @@ export default function Page() {
             <div className="mt-8">
               <Catalogo />
             </div>
+            <VistosRecientes />
+          </div>
+        </section>
+
+        {/* ---------- Armá tu maceta 3D ---------- */}
+        <section id="armar" aria-labelledby="armar-titulo" className="scroll-mt-32 px-4 pb-14 md:px-6 md:pb-20 lg:scroll-mt-36">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-sm font-extrabold tracking-wider text-[var(--vt-hoja)] uppercase">
+                  Nuevo · en 3D
+                </p>
+                <h2 id="armar-titulo" className="vt-titulo mt-2 text-[clamp(2.8rem,7vw,5rem)]">
+                  Armá tu maceta
+                </h2>
+              </div>
+              <p className="max-w-sm text-[var(--vt-tinta-70)]">
+                Elegí planta, maceta y color, girala para verla de todos lados
+                y mirá el precio al instante.
+              </p>
+            </div>
+            <div className="mt-8">
+              <SeccionArmador />
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- Probala en tu casa ---------- */}
+        <section id="probala" aria-labelledby="probala-titulo" className="scroll-mt-32 bg-[var(--vt-lila)] px-4 py-14 md:px-6 md:py-20 lg:scroll-mt-36">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h2 id="probala-titulo" className="vt-titulo text-[clamp(2.8rem,7vw,5rem)]">
+                Probala
+                <br />
+                en tu casa
+              </h2>
+              <p className="max-w-sm text-[var(--vt-tinta-70)]">
+                Arrastrá la planta por el living: te decimos si en ese rincón
+                va a estar feliz con la luz que tiene.
+              </p>
+            </div>
+            <div className="mt-8">
+              <SeccionProbador />
+            </div>
           </div>
         </section>
 
@@ -229,6 +266,33 @@ export default function Page() {
             <div className="mt-8">
               <GuiaCuidados />
             </div>
+          </div>
+        </section>
+
+        {/* ---------- Herramientas: medidor de luz y calendario de riego ---------- */}
+        <section id="herramientas" aria-labelledby="herramientas-titulo" className="scroll-mt-32 px-4 py-14 md:px-6 md:py-20 lg:scroll-mt-36">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h2 id="herramientas-titulo" className="vt-titulo text-[clamp(2.8rem,7vw,5rem)]">
+                Tu kit de
+                <br />
+                <span className="text-[var(--vt-hoja)]">mano verde</span>
+              </h2>
+              <p className="max-w-sm text-[var(--vt-tinta-70)]">
+                Medí la luz de tu rincón y armá el calendario de riego de tu
+                planta. Lo podés guardar en tu cuenta.
+              </p>
+            </div>
+            <div className="mt-8">
+              <SeccionHerramientas />
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- Club de plantas ---------- */}
+        <section id="club" aria-labelledby="club-titulo" className="scroll-mt-32 bg-[var(--vt-menta)] px-4 py-14 md:px-6 md:py-20 lg:scroll-mt-36">
+          <div className="mx-auto max-w-7xl">
+            <SeccionClub />
           </div>
         </section>
 
@@ -340,78 +404,6 @@ export default function Page() {
         </section>
       </main>
 
-      {/* ---------- Pie ---------- */}
-      <footer className="bg-[var(--vt-tinta)] px-4 pt-14 pb-24 text-[var(--vt-crema)] md:px-6">
-        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
-          <div>
-            <Logo className="text-4xl" />
-            <p className="mt-4 max-w-xs text-sm text-white/70">
-              Vivero online con plantas elegidas a mano en Carrasco y enviadas
-              con cuidado a todo el país.
-            </p>
-            <div className="mt-5 flex gap-2">
-              <a
-                href="https://www.instagram.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram (ejemplo)"
-                className="grid size-11 place-items-center rounded-full border-2 border-white/30 hover:border-[var(--vt-manteca)] hover:text-[var(--vt-manteca)]"
-              >
-                <AtSign className="size-5" aria-hidden="true" />
-              </a>
-              <a
-                href={consulta}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="WhatsApp (ejemplo)"
-                className="grid size-11 place-items-center rounded-full border-2 border-white/30 hover:border-[var(--vt-manteca)] hover:text-[var(--vt-manteca)]"
-              >
-                <MessageCircle className="size-5" aria-hidden="true" />
-              </a>
-            </div>
-          </div>
-          <nav aria-label="Tienda">
-            <p className="vt-titulo text-xl text-[var(--vt-manteca)]">Tienda</p>
-            <ul className="mt-3 space-y-2 text-sm text-white/80">
-              <li><a href="#catalogo" className="hover:underline">Todas las plantas</a></li>
-              <li><a href="#quiz" className="hover:underline">¿Qué planta va con vos?</a></li>
-              <li><a href="#cuidados" className="hover:underline">Guía de cuidados</a></li>
-              <li><a href="#resenas" className="hover:underline">Reseñas</a></li>
-            </ul>
-          </nav>
-          <nav aria-label="Ayuda">
-            <p className="vt-titulo text-xl text-[var(--vt-manteca)]">Ayuda</p>
-            <ul className="mt-3 space-y-2 text-sm text-white/80">
-              <li><a href="#preguntas" className="hover:underline">Envíos y retiro</a></li>
-              <li><a href="#preguntas" className="hover:underline">Garantía de 30 días</a></li>
-              <li><a href="#preguntas" className="hover:underline">Medios de pago</a></li>
-              <li><a href={consulta} target="_blank" rel="noopener noreferrer" className="hover:underline">Contacto</a></li>
-            </ul>
-          </nav>
-          <div>
-            <p className="vt-titulo text-xl text-[var(--vt-manteca)]">Vivero</p>
-            <address className="mt-3 text-sm leading-relaxed text-white/80 not-italic">
-              Camino Carrasco 5120, Montevideo
-              <br />
-              Lunes a sábados de 9 a 18
-            </address>
-            <p className="mt-5 text-xs font-bold tracking-wider text-white/60 uppercase">Pagás con</p>
-            <ul className="mt-2 flex flex-wrap gap-1.5 text-xs font-bold">
-              {["Mercado Pago", "Visa", "Mastercard", "OCA", "Transferencia"].map((m) => (
-                <li key={m} className="rounded-full border-2 border-white/25 px-2.5 py-1">
-                  {m}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div className="mx-auto mt-12 flex max-w-7xl flex-wrap items-center justify-between gap-3 border-t-2 border-white/15 pt-6 text-xs text-white/60">
-          <p>© 2026 Verde Tienda · Sitio de ejemplo: precios, reseñas y datos son ficticios.</p>
-        </div>
-        <CreditosFotos fotos={fotosVerde} className="max-w-7xl text-white/80" />
-      </footer>
-
-      <BannerDemo />
-    </Tienda>
+    </>
   )
 }

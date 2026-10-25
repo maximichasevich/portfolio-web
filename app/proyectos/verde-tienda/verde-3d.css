@@ -1,0 +1,447 @@
+/* Verde Tienda · 3D e interacciones
+ *
+ * Maceta 3D, living de "Probala en tu casa", tarjetas holográficas, tarjeta
+ * que se da vuelta, caja del club y medidor de luz. Todo con transformaciones
+ * CSS; solo se animan transform y opacity.
+ */
+
+/* Pausa global: el botón "Pausar animaciones" pone data-vt-quieto en <html>. */
+html[data-vt-quieto] .vt-anim {
+  animation-play-state: paused !important;
+}
+
+/* ---------- Brisa ---------- */
+/* --brisa (-1 a 1) la escribe JavaScript; la oscilación suave es CSS. */
+.vt-brisa {
+  transform-style: preserve-3d;
+  transform: rotateZ(calc(var(--brisa, 0) * 8deg));
+  transform-origin: 0 0;
+}
+.vt-mece {
+  transform-style: preserve-3d;
+  transform-origin: 0 0;
+  animation: vt-mece 3.8s ease-in-out infinite;
+}
+@keyframes vt-mece {
+  0%,
+  100% {
+    transform: rotateZ(-1.8deg);
+  }
+  50% {
+    transform: rotateZ(1.8deg);
+  }
+}
+
+/* Plantas de la portada que se mueven con el cursor. */
+.vt-brisa-portada {
+  transform: rotate(calc(var(--brisa, 0) * 9deg));
+  transform-origin: 50% 100%;
+}
+.vt-mece-portada {
+  transform-origin: 50% 100%;
+  animation: vt-mece-2d 4.2s ease-in-out infinite;
+}
+@keyframes vt-mece-2d {
+  0%,
+  100% {
+    transform: rotate(-2.5deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+
+/* ---------- Maceta 3D ---------- */
+.vt-m3d-escena {
+  position: relative;
+  height: 390px;
+  perspective: 1000px;
+  perspective-origin: 50% 35%;
+  touch-action: pan-y;
+  cursor: grab;
+  border-radius: 32px;
+}
+.vt-m3d-escena:active {
+  cursor: grabbing;
+}
+.vt-m3d-mundo {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(-13deg) rotateY(-20deg);
+  will-change: transform;
+}
+.vt-m3d-cara {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+.vt-m3d-oscuro {
+  position: absolute;
+  inset: 0;
+  background: #1f2a22;
+  opacity: 0.25;
+}
+.vt-m3d-brillo {
+  position: absolute;
+  inset: 0 22%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, var(--brillo, 0.3)),
+    transparent
+  );
+  opacity: 0;
+}
+.vt-m3d-deco {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.vt-m3d-nervio {
+  position: absolute;
+  left: 50%;
+  top: 19%;
+  bottom: 4%;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.14);
+}
+.vt-m3d-disco {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: 2px solid var(--vt-tinta);
+  border-radius: 50%;
+}
+.vt-m3d-tierra {
+  background:
+    radial-gradient(circle at 30% 30%, #9a6a48 0 2px, transparent 2.5px) 0 0 /
+      13px 13px,
+    #6b4630;
+}
+.vt-m3d-planta {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+}
+.vt-m3d-plano {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 50% 100%;
+}
+.vt-m3d-piso {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  width: 220px;
+  height: 40px;
+  margin-left: -110px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(31, 42, 34, 0.28), transparent);
+}
+
+/* ---------- Tarjeta holográfica ---------- */
+.vt-holo {
+  transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.vt-holo[data-activa] {
+  transition: transform 0.08s linear;
+}
+.vt-holo-brillo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: soft-light;
+  background:
+    radial-gradient(
+      circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, 0.9),
+      transparent 45%
+    ),
+    linear-gradient(
+      115deg,
+      transparent 18%,
+      rgba(255, 101, 66, 0.7) 32%,
+      rgba(255, 216, 77, 0.7) 42%,
+      rgba(184, 234, 208, 0.75) 52%,
+      rgba(182, 220, 255, 0.75) 62%,
+      rgba(203, 188, 255, 0.7) 72%,
+      transparent 86%
+    );
+  background-size:
+    100% 100%,
+    240% 240%;
+  background-position:
+    0 0,
+    var(--hx, 50%) var(--hy, 50%);
+  transition: opacity 0.3s ease;
+}
+.vt-holo[data-activa] .vt-holo-brillo {
+  opacity: 1;
+}
+
+/* ---------- Tarjeta que se da vuelta (calendario de riego) ---------- */
+.vt-giro {
+  perspective: 1400px;
+}
+.vt-giro-interior {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 0.75s cubic-bezier(0.3, 1.25, 0.5, 1);
+}
+.vt-giro[data-vuelta="true"] .vt-giro-interior {
+  transform: rotateY(180deg);
+}
+.vt-giro-cara,
+.vt-giro-dorso {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+}
+.vt-giro-dorso {
+  transform: rotateY(180deg);
+}
+
+/* ---------- Caja 3D del club de plantas ---------- */
+.vt-caja-escena {
+  perspective: 700px;
+}
+.vt-caja {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  transform-style: preserve-3d;
+  transform: rotateX(-24deg) rotateY(-34deg);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.vt-caja-escena[data-abierta="true"] .vt-caja {
+  transform: rotateX(-30deg) rotateY(-18deg);
+}
+.vt-caja-cara {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--vt-tinta);
+}
+.vt-caja-tapa {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--vt-tinta);
+  transform-origin: 50% 0;
+  transform: translateZ(-55px) rotateX(var(--tapa, 90deg));
+  transition: transform 0.6s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.vt-caja-escena[data-abierta="true"] .vt-caja-tapa {
+  --tapa: 205deg;
+}
+.vt-caja-planta {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 110px;
+  height: 110px;
+  margin-left: -55px;
+  margin-top: -88px;
+  transform-origin: 50% 100%;
+  transform: translateY(70px) scale(0.5);
+  opacity: 0;
+  transition:
+    transform 0.6s cubic-bezier(0.3, 1.4, 0.5, 1),
+    opacity 0.3s ease;
+}
+.vt-caja-escena[data-abierta="true"] .vt-caja-planta {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* ---------- Living de "Probala en tu casa" ---------- */
+.vt-living {
+  perspective: 1100px;
+  perspective-origin: 50% 40%;
+}
+.vt-living-mundo {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--lx, 0deg)) rotateY(var(--ly, 0deg));
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.vt-living-capa {
+  position: absolute;
+  inset: 0;
+}
+.vt-living-planta {
+  position: absolute;
+  left: 0;
+  top: 0;
+  cursor: grab;
+  touch-action: pan-y;
+  will-change: transform;
+}
+.vt-living-planta[data-arrastrando] {
+  cursor: grabbing;
+}
+.vt-living-planta[data-suelta] {
+  transition: transform 0.45s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+.vt-living-punto {
+  animation: vt-latir 1.6s ease-in-out infinite;
+}
+@keyframes vt-latir {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.4;
+  }
+}
+
+/* ---------- Medidor de luz ---------- */
+.vt-rayos {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: vt-girar 26s linear infinite;
+}
+@keyframes vt-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.vt-aguja {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+  transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.vt-rango {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  border: 2px solid var(--vt-tinta);
+  border-radius: 999px;
+  background: linear-gradient(to right, #6c6a8a, #b6dcff 35%, #ffe9a3 65%, #ffd84d);
+  cursor: pointer;
+}
+.vt-rango::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--vt-tinta);
+  border-radius: 999px;
+  background: var(--vt-coral);
+  box-shadow: 0 3px 0 var(--vt-tinta);
+  cursor: grab;
+}
+.vt-rango::-moz-range-thumb {
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--vt-tinta);
+  border-radius: 999px;
+  background: var(--vt-coral);
+  box-shadow: 0 3px 0 var(--vt-tinta);
+  cursor: grab;
+}
+
+/* ---------- Stock que late y camioncito del pedido ---------- */
+.vt-quedan {
+  animation: vt-latido-suave 1.8s ease-in-out infinite;
+}
+@keyframes vt-latido-suave {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+.vt-camion {
+  transition: transform 0.9s cubic-bezier(0.3, 1.2, 0.5, 1);
+}
+.vt-rebote {
+  animation: vt-rebote 0.9s ease-in-out infinite;
+}
+@keyframes vt-rebote {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/*
+ * "Reducir movimiento": la regla global de app/globals.css acorta todas las
+ * animaciones y transiciones, pero el dueño pidió que las decorativas sigan
+ * corriendo. Todas las continuas se frenan con "Pausar animaciones".
+ */
+@media (prefers-reduced-motion: reduce) {
+  .verde .vt-mece,
+  .vt-capa .vt-mece {
+    animation-duration: 3.8s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .verde .vt-mece-portada {
+    animation-duration: 4.2s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .verde .vt-rayos {
+    animation-duration: 26s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .verde .vt-living-punto {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .verde .vt-quedan,
+  .vt-capa .vt-quedan {
+    animation-duration: 1.8s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .verde .vt-rebote,
+  .vt-capa .vt-rebote {
+    animation-duration: 0.9s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .verde .vt-holo {
+    transition-duration: 0.5s !important;
+  }
+  .verde .vt-holo[data-activa] {
+    transition-duration: 0.08s !important;
+  }
+  .verde .vt-giro-interior,
+  .vt-capa .vt-giro-interior {
+    transition-duration: 0.75s !important;
+  }
+  .verde .vt-caja,
+  .verde .vt-caja-tapa,
+  .verde .vt-caja-planta {
+    transition-duration: 0.6s !important;
+  }
+  .verde .vt-living-mundo {
+    transition-duration: 0.5s !important;
+  }
+  .verde .vt-living-planta[data-suelta] {
+    transition-duration: 0.45s !important;
+  }
+  .verde .vt-aguja {
+    transition-duration: 0.35s !important;
+  }
+  .verde .vt-camion,
+  .vt-capa .vt-camion {
+    transition-duration: 0.9s !important;
+  }
+}

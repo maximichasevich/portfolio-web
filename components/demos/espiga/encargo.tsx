@@ -1,14 +1,19 @@
 "use client"
 
 import { useId, useState } from "react"
-import { MessageCircle, UserRound } from "lucide-react"
+import { ArrowUp, MessageCircle, UserRound } from "lucide-react"
 
+import { detalleTorta } from "@/components/demos/espiga/contenido"
 import {
   abrirPanel,
   datosCompletos,
+  elegirTipoEncargo,
   useAhora,
   useDatos,
+  useTipoEncargo,
+  useTorta,
 } from "@/components/demos/espiga/estado"
+import { pesos } from "@/lib/demo"
 import { whatsappDemo } from "@/lib/demo"
 import { cn } from "@/lib/utils"
 
@@ -33,7 +38,10 @@ export function NotaEncargo() {
   const ahora = useAhora()
   const datos = useDatos()
   const base = useId()
-  const [tipo, setTipo] = useState(tipos[0])
+  const tipo = useTipoEncargo()
+  const setTipo = elegirTipoEncargo
+  const torta = detalleTorta(useTorta())
+  const esTorta = tipo === "Torta"
   const [cantidad, setCantidad] = useState(personas[0])
   const [fecha, setFecha] = useState("")
   const [detalle, setDetalle] = useState("")
@@ -66,7 +74,13 @@ export function NotaEncargo() {
     const mensaje = [
       "¡Hola, La Espiga! Quiero hacer un encargo:",
       "",
-      `• ${tipo} para ${cantidad} personas`,
+      ...(esTorta
+        ? [
+            "• Torta a medida:",
+            ...torta.lineas.map((l) => `   – ${l}`),
+            `   – Precio estimado: ${pesos(torta.precio)}`,
+          ]
+        : [`• ${tipo} para ${cantidad} personas`]),
       `• Para el ${dia}`,
       detalle.trim() ? `• Detalle: ${detalle.trim()}` : "",
       "",
@@ -83,6 +97,7 @@ export function NotaEncargo() {
 
   return (
     <form
+      id="nota-encargo"
       onSubmit={enviar}
       noValidate
       className="rayado sombra-papel relative rotate-[0.6deg] rounded-sm px-5 pt-8 pb-7 pl-[3.4rem] sm:px-8 sm:pl-[3.8rem]"
@@ -126,8 +141,29 @@ export function NotaEncargo() {
         </div>
       </fieldset>
 
+      {esTorta && (
+        <div className="mt-5 rounded-md border-2 border-[var(--tinta)] bg-[#fffdf7] p-3">
+          <p className="font-bold">Tu torta</p>
+          <ul className="mt-1 text-[0.98rem]">
+            {torta.lineas.map((l) => (
+              <li key={l}>{l}</li>
+            ))}
+          </ul>
+          <p className="mt-1 font-bold">
+            Precio estimado: {pesos(torta.precio)}
+          </p>
+          <a
+            href="#torta"
+            className="mt-1 inline-flex min-h-11 items-center gap-1.5 font-bold text-[var(--rojo)] underline underline-offset-4"
+          >
+            <ArrowUp className="size-4" aria-hidden="true" />
+            Cambiarla en el modelo 3D
+          </a>
+        </div>
+      )}
+
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <div>
+        <div className={esTorta ? "hidden" : undefined}>
           <label
             htmlFor={`${base}-personas`}
             className="mb-1.5 block font-bold"

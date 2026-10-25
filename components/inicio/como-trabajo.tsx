@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
 
+import { Inclinable } from "@/components/inicio/interacciones"
 import { AnimatedBeam } from "@/components/ui/animated-beam"
 import { HyperText } from "@/components/ui/hyper-text"
 import { compromisos, etapas } from "@/data/trabajo"
@@ -237,14 +238,18 @@ export function ComoTrabajo() {
         {/* Compromisos */}
         <ul className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {compromisos.map((c, i) => (
-            <li key={c.titulo} className="hud rounded-2xl p-5">
-              <span className="mono text-[11px] text-[var(--estrella-45)]">
-                REGLA_{String(i + 1).padStart(2, "0")}
-              </span>
-              <p className="display-md mt-3 text-xl">{c.titulo}</p>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--estrella-70)]">
-                {c.texto}
-              </p>
+            <li key={c.titulo} className="h-full">
+              <Inclinable className="h-full" grados={10}>
+                <div className="hud h-full rounded-2xl p-5">
+                  <span className="mono text-[11px] text-[var(--estrella-45)]">
+                    REGLA_{String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p className="display-md mt-3 text-xl">{c.titulo}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--estrella-70)]">
+                    {c.texto}
+                  </p>
+                </div>
+              </Inclinable>
             </li>
           ))}
         </ul>

@@ -6,7 +6,8 @@ import { JetBrains_Mono, Syne } from "next/font/google"
  */
 export const syne = Syne({
   subsets: ["latin"],
-  weight: ["400", "700", "800"],
+  // Solo los grosores que usan los títulos (.display y .display-md).
+  weight: ["700", "800"],
   variable: "--font-syne",
   display: "swap",
 })

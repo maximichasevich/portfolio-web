@@ -9,6 +9,8 @@ import {
   Package,
   Pencil,
   Plus,
+  Sprout,
+  Star,
   Trash2,
   User,
   UserRound,
@@ -25,6 +27,12 @@ import {
 } from "@/components/demos/verde/estado"
 import { Cajon, Campo, capa } from "@/components/demos/verde/ui"
 import {
+  EtiquetaEstado,
+  MiClub,
+  MisPlantas,
+  Seguimiento,
+} from "@/components/demos/verde/cuenta-extra"
+import {
   enfocarPrimerError,
   limpiarErrores,
   validarEmail,
@@ -40,8 +48,18 @@ function inicial(nombre: string) {
 /* ---------- Menú desplegable del ícono de cuenta ---------- */
 
 export function MenuCuenta() {
-  const { usuario, pedidos, direcciones, favoritos, abrir, abrirCuenta, salir, avisar } =
-    useTienda()
+  const {
+    usuario,
+    pedidos,
+    direcciones,
+    favoritos,
+    misPlantas,
+    puntosDisponibles,
+    abrir,
+    abrirCuenta,
+    salir,
+    avisar,
+  } = useTienda()
 
   const item =
     "vt-item flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2.5 text-[15px] font-semibold"
@@ -100,6 +118,14 @@ export function MenuCuenta() {
               <DropdownMenu.Item className={item} onSelect={() => abrirCuenta("pedidos")}>
                 <Package className="size-4" aria-hidden="true" /> Mis pedidos
                 <Contador n={pedidos.length} />
+              </DropdownMenu.Item>
+              <DropdownMenu.Item className={item} onSelect={() => abrirCuenta("plantas")}>
+                <Sprout className="size-4" aria-hidden="true" /> Mis plantas y riego
+                <Contador n={misPlantas.length} />
+              </DropdownMenu.Item>
+              <DropdownMenu.Item className={item} onSelect={() => abrirCuenta("club")}>
+                <Star className="size-4" aria-hidden="true" /> Club y puntos
+                <Contador n={puntosDisponibles} />
               </DropdownMenu.Item>
               <DropdownMenu.Item className={item} onSelect={() => abrir("favoritos")}>
                 <Heart className="size-4" aria-hidden="true" /> Favoritos
@@ -261,7 +287,7 @@ export function PanelCuenta() {
       abierto={panel === "cuenta"}
       onCambio={(o) => abrir(o ? "cuenta" : null)}
       titulo="Mi cuenta"
-      descripcion="Tus datos, direcciones guardadas y pedidos"
+      descripcion="Tus datos, direcciones, pedidos, plantas y puntos"
       ancho="max-w-[34rem]"
       icono={<UserRound className="size-6" aria-hidden="true" />}
     >
@@ -293,6 +319,12 @@ export function PanelCuenta() {
             <Tabs.Trigger value="pedidos" className={pestana}>
               Mis pedidos
             </Tabs.Trigger>
+            <Tabs.Trigger value="plantas" className={pestana}>
+              Mis plantas
+            </Tabs.Trigger>
+            <Tabs.Trigger value="club" className={pestana}>
+              Club
+            </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="datos" className="mt-5 outline-none">
             <MisDatos key={usuario.email + usuario.nombre} />
@@ -302,6 +334,12 @@ export function PanelCuenta() {
           </Tabs.Content>
           <Tabs.Content value="pedidos" className="mt-5 outline-none">
             <MisPedidos />
+          </Tabs.Content>
+          <Tabs.Content value="plantas" className="mt-5 outline-none">
+            <MisPlantas />
+          </Tabs.Content>
+          <Tabs.Content value="club" className="mt-5 outline-none">
+            <MiClub />
           </Tabs.Content>
         </Tabs.Root>
       )}
@@ -575,9 +613,9 @@ function MisPedidos() {
   }
   return (
     <ul className="space-y-3">
-      {pedidos.map((p) => (
+      {pedidos.map((p, i) => (
         <li key={p.numero} className="vt-tarjeta overflow-hidden">
-          <details className="group">
+          <details className="group" open={i === 0}>
             <summary className="flex cursor-pointer list-none items-center gap-3 p-4 [&::-webkit-details-marker]:hidden">
               <span className="grid size-11 shrink-0 place-items-center rounded-full border-2 border-[var(--vt-tinta)] bg-[var(--vt-menta)]">
                 <Package className="size-5" aria-hidden="true" />
@@ -591,13 +629,18 @@ function MisPedidos() {
               </span>
               <span className="text-right">
                 <span className="block font-extrabold tabular-nums">{pesos(p.total)}</span>
-                <span className="mt-0.5 inline-block rounded-full bg-[var(--vt-manteca)] px-2 py-0.5 text-[11px] font-bold">
-                  Preparando
-                </span>
+                <EtiquetaEstado pedido={p} />
               </span>
             </summary>
             <div className="border-t-2 border-[var(--vt-tinta-15)] p-4 text-sm">
-              <ul className="space-y-1.5">
+              <Seguimiento pedido={p} />
+              {p.regalo && (
+                <p className="mt-3 rounded-2xl bg-[var(--vt-rosa)] p-3 text-xs">
+                  <strong className="font-extrabold">Regalo para {p.regalo.para}.</strong>{" "}
+                  {p.regalo.mensaje && `“${p.regalo.mensaje}”`}
+                </p>
+              )}
+              <ul className="mt-4 space-y-1.5">
                 {p.lineas.map((l, i) => (
                   <li key={i} className="flex justify-between gap-3">
                     <span className="min-w-0">
@@ -613,12 +656,30 @@ function MisPedidos() {
                   <dt>Envío · {p.zona}</dt>
                   <dd className="tabular-nums">{p.envio ? pesos(p.envio) : "Gratis"}</dd>
                 </div>
+                {p.descuentoCupon ? (
+                  <div className="flex justify-between">
+                    <dt>Cupón {p.cupon}</dt>
+                    <dd className="tabular-nums">−{pesos(p.descuentoCupon)}</dd>
+                  </div>
+                ) : null}
+                {p.envoltorio ? (
+                  <div className="flex justify-between">
+                    <dt>Envoltorio de regalo</dt>
+                    <dd className="tabular-nums">{pesos(p.envoltorio)}</dd>
+                  </div>
+                ) : null}
                 {p.descuento > 0 && (
                   <div className="flex justify-between">
                     <dt>Descuento transferencia</dt>
                     <dd className="tabular-nums">−{pesos(p.descuento)}</dd>
                   </div>
                 )}
+                {p.puntos ? (
+                  <div className="flex justify-between">
+                    <dt>Puntos verdes</dt>
+                    <dd className="tabular-nums">+{p.puntos}</dd>
+                  </div>
+                ) : null}
                 <div className="flex justify-between">
                   <dt>Pago</dt>
                   <dd>{p.pago}</dd>

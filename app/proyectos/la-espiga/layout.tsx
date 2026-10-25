@@ -6,6 +6,7 @@ import {
 } from "next/font/google"
 
 import "./espiga.css"
+import "./tres-d.css"
 import { cn } from "@/lib/utils"
 
 /** Títulos: serif de cartel antiguo, con carácter. */

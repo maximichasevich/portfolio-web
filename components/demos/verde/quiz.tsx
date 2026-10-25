@@ -235,7 +235,7 @@ export function Quiz() {
                         {resultado[0].descripcion}
                       </p>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <button type="button" className="vt-boton h-11 px-5 text-sm" onClick={() => agregar(resultado[0].id)}>
+                        <button type="button" className="vt-boton h-11 px-5 text-sm" onClick={(e) => agregar(resultado[0].id, { origen: e.currentTarget })}>
                           Agregar · {pesos(precioDesde(resultado[0]))}
                         </button>
                         <button type="button" className="vt-boton-linea h-11 px-5 text-sm" onClick={() => abrirVistaRapida(resultado[0].id)}>

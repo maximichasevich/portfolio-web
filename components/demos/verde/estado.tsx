@@ -10,13 +10,26 @@ import {
   useRef,
   useState,
 } from "react"
+import { useRouter } from "next/navigation"
 import { MotionConfig } from "motion/react"
 
+import { pesos } from "@/lib/demo"
 import {
   buscarPlanta,
   precioVariante,
   type CategoriaPlanta,
 } from "@/components/demos/verde/catalogo"
+import {
+  PUNTOS_CANJE,
+  buscarCupon,
+  descuentoDeCupon,
+  diasDeRiego,
+  primerTamanoDisponible,
+  puntosDe,
+  stockDe,
+  type Cupon,
+} from "@/components/demos/verde/extras"
+import { volarAlCarrito } from "@/components/demos/verde/efectos"
 
 /* ---------- Tipos ---------- */
 
@@ -25,6 +38,8 @@ export type LineaCarrito = {
   plantaId: string
   tamanoId: string
   macetaId: string
+  /** Color de la maceta de cerámica. */
+  colorId?: string
   cantidad: number
 }
 
@@ -63,7 +78,40 @@ export type Pedido = {
   zona: string
   direccion: string
   pago: string
+  cupon?: string
+  descuentoCupon?: number
+  envoltorio?: number
+  regalo?: { para: string; mensaje: string } | null
+  puntos?: number
+  plantaIds?: string[]
 }
+
+export type MiPlanta = {
+  id: string
+  plantaId: string
+  apodo: string
+  cadaDias: number
+  /** Fecha del último riego (ms). */
+  ultimoRiego: number
+}
+
+export type AvisoStock = { plantaId: string; tamanoId: string; email: string }
+
+export type Suscripcion = {
+  planId: string
+  desde: string
+  pausada: boolean
+}
+
+export type ResenaPropia = {
+  plantaId: string
+  nombre: string
+  estrellas: number
+  texto: string
+  fecha: string
+}
+
+export type PreguntaPropia = { plantaId: string; pregunta: string; fecha: string }
 
 export type Filtros = {
   categoria: CategoriaPlanta | null
@@ -87,9 +135,15 @@ export type Panel =
   | "cuenta"
   | "entrar"
   | "menu"
+  | "comparar"
   | null
 
-export type SeccionCuenta = "datos" | "direcciones" | "pedidos"
+export type SeccionCuenta =
+  | "datos"
+  | "direcciones"
+  | "pedidos"
+  | "plantas"
+  | "club"
 
 export const filtrosVacios: Filtros = {
   categoria: null,
@@ -97,6 +151,13 @@ export const filtrosVacios: Filtros = {
   pocaLuz: false,
   facil: false,
   texto: "",
+}
+
+/** Ruta de la portada de la tienda. */
+export const RUTA = "/proyectos/verde-tienda"
+
+export function rutaPlanta(id: string) {
+  return `${RUTA}/planta/${id}`
 }
 
 /* ---------- Datos guardados (localStorage) ---------- */
@@ -107,6 +168,18 @@ type Guardado = {
   usuario: Usuario | null
   direcciones: Direccion[]
   pedidos: Pedido[]
+  cupon: string | null
+  cuponesPropios: string[]
+  puntosCanjeados: number
+  vistos: string[]
+  misPlantas: MiPlanta[]
+  avisosStock: AvisoStock[]
+  suscripcion: Suscripcion | null
+  resenasPropias: ResenaPropia[]
+  preguntasPropias: PreguntaPropia[]
+  comparar: string[]
+  /** Pausa las animaciones continuas (brisa, giro automático). */
+  pausado: boolean
 }
 
 const vacio: Guardado = {
@@ -115,25 +188,49 @@ const vacio: Guardado = {
   usuario: null,
   direcciones: [],
   pedidos: [],
+  cupon: null,
+  cuponesPropios: [],
+  puntosCanjeados: 0,
+  vistos: [],
+  misPlantas: [],
+  avisosStock: [],
+  suscripcion: null,
+  resenasPropias: [],
+  preguntasPropias: [],
+  comparar: [],
+  pausado: false,
 }
 
 const CLAVE = "verde-tienda:v1"
+
+function lista<T>(valor: unknown, filtro?: (x: T) => boolean): T[] {
+  if (!Array.isArray(valor)) return []
+  return filtro ? (valor as T[]).filter(filtro) : (valor as T[])
+}
 
 function leerGuardado(): Guardado {
   try {
     const crudo = window.localStorage.getItem(CLAVE)
     if (!crudo) return vacio
     const datos = JSON.parse(crudo) as Partial<Guardado>
+    const existe = (id: string) => !!buscarPlanta(id)
     return {
-      carrito: Array.isArray(datos.carrito)
-        ? datos.carrito.filter((l) => buscarPlanta(l.plantaId))
-        : [],
-      favoritos: Array.isArray(datos.favoritos)
-        ? datos.favoritos.filter((id) => buscarPlanta(id))
-        : [],
+      carrito: lista<LineaCarrito>(datos.carrito, (l) => existe(l.plantaId)),
+      favoritos: lista<string>(datos.favoritos, existe),
       usuario: datos.usuario ?? null,
-      direcciones: Array.isArray(datos.direcciones) ? datos.direcciones : [],
-      pedidos: Array.isArray(datos.pedidos) ? datos.pedidos : [],
+      direcciones: lista<Direccion>(datos.direcciones),
+      pedidos: lista<Pedido>(datos.pedidos),
+      cupon: typeof datos.cupon === "string" ? datos.cupon : null,
+      cuponesPropios: lista<string>(datos.cuponesPropios),
+      puntosCanjeados: Number(datos.puntosCanjeados) || 0,
+      vistos: lista<string>(datos.vistos, existe),
+      misPlantas: lista<MiPlanta>(datos.misPlantas, (p) => existe(p.plantaId)),
+      avisosStock: lista<AvisoStock>(datos.avisosStock),
+      suscripcion: datos.suscripcion ?? null,
+      resenasPropias: lista<ResenaPropia>(datos.resenasPropias),
+      preguntasPropias: lista<PreguntaPropia>(datos.preguntasPropias),
+      comparar: lista<string>(datos.comparar, existe).slice(0, 3),
+      pausado: datos.pausado === true,
     }
   } catch {
     return vacio
@@ -158,24 +255,45 @@ type Accion =
   | { tipo: "direccion"; direccion: Direccion }
   | { tipo: "quitarDireccion"; id: string }
   | { tipo: "pedido"; pedido: Pedido }
+  | { tipo: "cupon"; codigo: string | null }
+  | { tipo: "canje"; codigo: string }
+  | { tipo: "visto"; id: string }
+  | { tipo: "miPlanta"; planta: MiPlanta }
+  | { tipo: "quitarMiPlanta"; id: string }
+  | { tipo: "regar"; id: string; cuando: number }
+  | { tipo: "avisoStock"; aviso: AvisoStock }
+  | { tipo: "suscripcion"; suscripcion: Suscripcion | null }
+  | { tipo: "resena"; resena: ResenaPropia }
+  | { tipo: "pregunta"; pregunta: PreguntaPropia }
+  | { tipo: "comparar"; id: string }
+  | { tipo: "limpiarComparar" }
+  | { tipo: "pausar"; pausado: boolean }
 
 function reductor(estado: Guardado, accion: Accion): Guardado {
   switch (accion.tipo) {
     case "cargar":
       return accion.datos
     case "agregar": {
-      const { plantaId, tamanoId, macetaId, cantidad } = accion.linea
-      const clave = `${plantaId}|${tamanoId}|${macetaId}`
+      const { plantaId, tamanoId, macetaId, colorId, cantidad } = accion.linea
+      const clave = `${plantaId}|${tamanoId}|${macetaId}${colorId ? `|${colorId}` : ""}`
+      const tope = Math.min(20, stockDe(plantaId, tamanoId))
       const existe = estado.carrito.find((l) => l.clave === clave)
       const carrito = existe
         ? estado.carrito.map((l) =>
             l.clave === clave
-              ? { ...l, cantidad: Math.min(20, l.cantidad + cantidad) }
+              ? { ...l, cantidad: Math.min(tope, l.cantidad + cantidad) }
               : l
           )
         : [
             ...estado.carrito,
-            { clave, plantaId, tamanoId, macetaId, cantidad },
+            {
+              clave,
+              plantaId,
+              tamanoId,
+              macetaId,
+              ...(colorId ? { colorId } : {}),
+              cantidad: Math.min(tope, cantidad),
+            },
           ]
       return { ...estado, carrito }
     }
@@ -187,7 +305,14 @@ function reductor(estado: Guardado, accion: Accion): Guardado {
             ? estado.carrito.filter((l) => l.clave !== accion.clave)
             : estado.carrito.map((l) =>
                 l.clave === accion.clave
-                  ? { ...l, cantidad: Math.min(20, accion.cantidad) }
+                  ? {
+                      ...l,
+                      cantidad: Math.min(
+                        20,
+                        stockDe(l.plantaId, l.tamanoId),
+                        accion.cantidad
+                      ),
+                    }
                   : l
               ),
       }
@@ -220,8 +345,87 @@ function reductor(estado: Guardado, accion: Accion): Guardado {
         ...estado,
         direcciones: estado.direcciones.filter((d) => d.id !== accion.id),
       }
-    case "pedido":
-      return { ...estado, pedidos: [accion.pedido, ...estado.pedidos] }
+    case "pedido": {
+      // Las plantas compradas se suman a "Mis plantas" con su recordatorio.
+      const fecha = new Date(accion.pedido.fecha).getTime()
+      const nuevas = (accion.pedido.plantaIds ?? [])
+        .filter((id) => !estado.misPlantas.some((m) => m.plantaId === id))
+        .map((id) => ({
+          id: `mp-${id}-${fecha}`,
+          plantaId: id,
+          apodo: buscarPlanta(id)?.nombre ?? "Mi planta",
+          cadaDias: diasDeRiego(id),
+          ultimoRiego: fecha,
+        }))
+      return {
+        ...estado,
+        pedidos: [accion.pedido, ...estado.pedidos],
+        cupon: null,
+        misPlantas: [...estado.misPlantas, ...nuevas],
+      }
+    }
+    case "cupon":
+      return { ...estado, cupon: accion.codigo }
+    case "canje":
+      return {
+        ...estado,
+        cuponesPropios: [...estado.cuponesPropios, accion.codigo],
+        puntosCanjeados: estado.puntosCanjeados + PUNTOS_CANJE,
+        cupon: accion.codigo,
+      }
+    case "visto":
+      return {
+        ...estado,
+        vistos: [accion.id, ...estado.vistos.filter((v) => v !== accion.id)].slice(0, 8),
+      }
+    case "miPlanta":
+      return { ...estado, misPlantas: [...estado.misPlantas, accion.planta] }
+    case "quitarMiPlanta":
+      return {
+        ...estado,
+        misPlantas: estado.misPlantas.filter((m) => m.id !== accion.id),
+      }
+    case "regar":
+      return {
+        ...estado,
+        misPlantas: estado.misPlantas.map((m) =>
+          m.id === accion.id ? { ...m, ultimoRiego: accion.cuando } : m
+        ),
+      }
+    case "avisoStock":
+      return {
+        ...estado,
+        avisosStock: [
+          ...estado.avisosStock.filter(
+            (a) =>
+              !(
+                a.plantaId === accion.aviso.plantaId &&
+                a.tamanoId === accion.aviso.tamanoId
+              )
+          ),
+          accion.aviso,
+        ],
+      }
+    case "suscripcion":
+      return { ...estado, suscripcion: accion.suscripcion }
+    case "resena":
+      return { ...estado, resenasPropias: [accion.resena, ...estado.resenasPropias] }
+    case "pregunta":
+      return {
+        ...estado,
+        preguntasPropias: [accion.pregunta, ...estado.preguntasPropias],
+      }
+    case "comparar":
+      return {
+        ...estado,
+        comparar: estado.comparar.includes(accion.id)
+          ? estado.comparar.filter((c) => c !== accion.id)
+          : [...estado.comparar, accion.id].slice(-3),
+      }
+    case "limpiarComparar":
+      return { ...estado, comparar: [] }
+    case "pausar":
+      return { ...estado, pausado: accion.pausado }
   }
 }
 
@@ -231,9 +435,27 @@ type Tienda = Guardado & {
   listo: boolean
   cantidadCarrito: number
   subtotal: number
+  /** Cupón aplicado, si es válido para el carrito actual. */
+  cuponActivo: Cupon | undefined
+  /** Mensaje si el cupón guardado no aplica (por ejemplo, falta monto). */
+  avisoCupon: string | null
+  descuentoCupon: number
+  aplicarCupon: (codigo: string) => { ok: boolean; mensaje: string }
+  quitarCupon: () => void
+  puntosGanados: number
+  puntosDisponibles: number
+  canjearPuntos: () => string | null
   agregar: (
     plantaId: string,
-    opciones?: { tamanoId?: string; macetaId?: string; cantidad?: number }
+    opciones?: {
+      tamanoId?: string
+      macetaId?: string
+      colorId?: string
+      cantidad?: number
+      /** Elemento desde donde "vuela" la planta al carrito. */
+      origen?: Element | null
+      silencioso?: boolean
+    }
   ) => void
   cambiarCantidad: (clave: string, cantidad: number) => void
   vaciarCarrito: () => void
@@ -244,6 +466,18 @@ type Tienda = Guardado & {
   guardarDireccion: (direccion: Direccion) => void
   quitarDireccion: (id: string) => void
   registrarPedido: (pedido: Pedido) => void
+  registrarVisto: (id: string) => void
+  agregarMiPlanta: (plantaId: string, apodo?: string) => void
+  quitarMiPlanta: (id: string) => void
+  regar: (id: string) => void
+  pedirAvisoStock: (aviso: AvisoStock) => void
+  suscribir: (planId: string | null) => void
+  pausarSuscripcion: (pausada: boolean) => void
+  publicarResena: (r: ResenaPropia) => void
+  publicarPregunta: (p: PreguntaPropia) => void
+  alternarComparar: (id: string) => void
+  limpiarComparar: () => void
+  pausar: (pausado: boolean) => void
 
   panel: Panel
   abrir: (panel: Panel) => void
@@ -282,6 +516,7 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
   const [orden, setOrden] = useState<Orden>("destacadas")
   const [aviso, setAviso] = useState<Tienda["aviso"]>(null)
   const contadorAviso = useRef(0)
+  const router = useRouter()
 
   // Leer lo guardado después de hidratar, para que el HTML del servidor y el
   // primer render del cliente coincidan.
@@ -296,6 +531,28 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (listo) escribirGuardado(datos)
   }, [datos, listo])
+
+  // El portfolio usa scroll suave: este dato le pide a Next que no lo use al
+  // navegar entre la portada y las fichas (si no, avisa en la consola).
+  useEffect(() => {
+    const raiz = document.documentElement
+    const antes = raiz.dataset.scrollBehavior
+    raiz.dataset.scrollBehavior = "smooth"
+    return () => {
+      if (antes === undefined) delete raiz.dataset.scrollBehavior
+      else raiz.dataset.scrollBehavior = antes
+    }
+  }, [])
+
+  // Pausa global de animaciones continuas: el CSS y los bucles leen este dato.
+  useEffect(() => {
+    const raiz = document.documentElement
+    if (datos.pausado) raiz.dataset.vtQuieto = "true"
+    else delete raiz.dataset.vtQuieto
+    return () => {
+      delete raiz.dataset.vtQuieto
+    }
+  }, [datos.pausado])
 
   useEffect(() => {
     if (!aviso) return
@@ -312,20 +569,36 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
     (plantaId, opciones = {}) => {
       const planta = buscarPlanta(plantaId)
       if (!planta) return
+      const tamanoId = opciones.tamanoId ?? primerTamanoDisponible(planta).id
+      const stock = stockDe(plantaId, tamanoId)
+      if (stock <= 0) {
+        avisar("Ese tamaño está sin stock por ahora")
+        return
+      }
+      const macetaId = planta.conMaceta ? (opciones.macetaId ?? "vivero") : "vivero"
+      const colorId =
+        macetaId === "ceramica" ? (opciones.colorId ?? "blanco") : undefined
+      const yaHay = datos.carrito
+        .filter((l) => l.plantaId === plantaId && l.tamanoId === tamanoId)
+        .reduce((s, l) => s + l.cantidad, 0)
+      if (yaHay >= stock) {
+        avisar(`No quedan más de ese tamaño: ya tenés ${yaHay} en el carrito`)
+        return
+      }
       despachar({
         tipo: "agregar",
         linea: {
           plantaId,
-          tamanoId: opciones.tamanoId ?? planta.tamanos[0].id,
-          macetaId: planta.conMaceta
-            ? (opciones.macetaId ?? "vivero")
-            : "vivero",
-          cantidad: opciones.cantidad ?? 1,
+          tamanoId,
+          macetaId,
+          colorId,
+          cantidad: Math.min(opciones.cantidad ?? 1, stock - yaHay),
         },
       })
-      avisar(`${planta.nombre} ya está en tu carrito`)
+      volarAlCarrito(opciones.origen, planta.foto.src)
+      if (!opciones.silencioso) avisar(`${planta.nombre} ya está en tu carrito`)
     },
-    [avisar]
+    [avisar, datos.carrito]
   )
 
   const alternarFavorito = useCallback(
@@ -348,14 +621,41 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
     setPanel("cuenta")
   }, [])
 
-  const irAlCatalogo = useCallback((f: Partial<Filtros> = {}) => {
-    setFiltros({ ...filtrosVacios, ...f })
-    setPanel(null)
-    // Esperar a que se cierre cualquier panel (y se libere el scroll).
-    window.setTimeout(() => {
-      document.getElementById("catalogo")?.scrollIntoView({ block: "start" })
-    }, 60)
-  }, [])
+  const irAlCatalogo = useCallback(
+    (f: Partial<Filtros> = {}) => {
+      setFiltros({ ...filtrosVacios, ...f })
+      setPanel(null)
+      setVistaRapida(null)
+      // En la ficha de producto no hay catálogo: volver a la portada.
+      if (!document.getElementById("catalogo")) {
+        router.push(`${RUTA}#catalogo`)
+        return
+      }
+      // Esperar a que se cierre cualquier panel (y se libere el scroll).
+      window.setTimeout(() => {
+        document.getElementById("catalogo")?.scrollIntoView({ block: "start" })
+      }, 60)
+    },
+    [router]
+  )
+
+  const aplicarCupon = useCallback<Tienda["aplicarCupon"]>(
+    (codigo) => {
+      const limpio = codigo.trim().toUpperCase()
+      if (!limpio) return { ok: false, mensaje: "Escribí un código." }
+      const cupon = buscarCupon(limpio, datos.cuponesPropios)
+      if (!cupon)
+        return {
+          ok: false,
+          mensaje: "Ese código no existe. Probá con PRIMERAPLANTA.",
+        }
+      if (cupon.primeraCompra && datos.pedidos.length > 0)
+        return { ok: false, mensaje: "Ese código es solo para tu primera compra." }
+      despachar({ tipo: "cupon", codigo: cupon.codigo })
+      return { ok: true, mensaje: `¡Listo! ${cupon.titulo}.` }
+    },
+    [datos.cuponesPropios, datos.pedidos.length]
+  )
 
   const valor = useMemo<Tienda>(() => {
     const cantidadCarrito = datos.carrito.reduce((s, l) => s + l.cantidad, 0)
@@ -365,11 +665,36 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
         ? s + precioVariante(planta, l.tamanoId, l.macetaId) * l.cantidad
         : s
     }, 0)
+    const cupon = datos.cupon
+      ? buscarCupon(datos.cupon, datos.cuponesPropios)
+      : undefined
+    const faltaMonto = cupon ? subtotal < cupon.minimo : false
+    const puntosGanados = datos.pedidos.reduce(
+      (s, p) => s + (p.puntos ?? puntosDe(p.total)),
+      0
+    )
+    const puntosDisponibles = Math.max(0, puntosGanados - datos.puntosCanjeados)
     return {
       ...datos,
       listo,
       cantidadCarrito,
       subtotal,
+      cuponActivo: cupon && !faltaMonto ? cupon : undefined,
+      avisoCupon:
+        cupon && faltaMonto
+          ? `El código ${cupon.codigo} vale para compras desde ${pesos(cupon.minimo)}.`
+          : null,
+      descuentoCupon: descuentoDeCupon(cupon, subtotal),
+      aplicarCupon,
+      quitarCupon: () => despachar({ tipo: "cupon", codigo: null }),
+      puntosGanados,
+      puntosDisponibles,
+      canjearPuntos: () => {
+        if (puntosDisponibles < PUNTOS_CANJE) return null
+        const codigo = `CLUB-${1000 + (datos.cuponesPropios.length + 1) * 37}`
+        despachar({ tipo: "canje", codigo })
+        return codigo
+      },
       agregar,
       cambiarCantidad: (clave, cantidad) =>
         despachar({ tipo: "cantidad", clave, cantidad }),
@@ -382,6 +707,44 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
         despachar({ tipo: "direccion", direccion }),
       quitarDireccion: (id) => despachar({ tipo: "quitarDireccion", id }),
       registrarPedido: (pedido) => despachar({ tipo: "pedido", pedido }),
+      registrarVisto: (id) => despachar({ tipo: "visto", id }),
+      agregarMiPlanta: (plantaId, apodo) => {
+        const planta = buscarPlanta(plantaId)
+        if (!planta) return
+        const cuando = Date.now()
+        despachar({
+          tipo: "miPlanta",
+          planta: {
+            id: `mp-${plantaId}-${cuando}`,
+            plantaId,
+            apodo: apodo?.trim() || planta.nombre,
+            cadaDias: diasDeRiego(plantaId),
+            ultimoRiego: cuando,
+          },
+        })
+      },
+      quitarMiPlanta: (id) => despachar({ tipo: "quitarMiPlanta", id }),
+      regar: (id) => despachar({ tipo: "regar", id, cuando: Date.now() }),
+      pedirAvisoStock: (aviso) => despachar({ tipo: "avisoStock", aviso }),
+      suscribir: (planId) =>
+        despachar({
+          tipo: "suscripcion",
+          suscripcion: planId
+            ? { planId, desde: new Date().toISOString(), pausada: false }
+            : null,
+        }),
+      pausarSuscripcion: (pausada) => {
+        if (datos.suscripcion)
+          despachar({
+            tipo: "suscripcion",
+            suscripcion: { ...datos.suscripcion, pausada },
+          })
+      },
+      publicarResena: (resena) => despachar({ tipo: "resena", resena }),
+      publicarPregunta: (pregunta) => despachar({ tipo: "pregunta", pregunta }),
+      alternarComparar: (id) => despachar({ tipo: "comparar", id }),
+      limpiarComparar: () => despachar({ tipo: "limpiarComparar" }),
+      pausar: (pausado) => despachar({ tipo: "pausar", pausado }),
       panel,
       abrir: setPanel,
       seccionCuenta,
@@ -390,7 +753,10 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
       vistaRapida,
       abrirVistaRapida: (id) => {
         // Un panel por vez: la vista rápida cierra el cajón que estaba abierto.
-        if (id) setPanel(null)
+        if (id) {
+          setPanel(null)
+          despachar({ tipo: "visto", id })
+        }
         setVistaRapida(id)
       },
       filtros,
@@ -406,6 +772,7 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
     listo,
     agregar,
     alternarFavorito,
+    aplicarCupon,
     panel,
     seccionCuenta,
     abrirCuenta,
@@ -422,4 +789,21 @@ export function ProveedorTienda({ children }: { children: React.ReactNode }) {
       <MotionConfig reducedMotion="user">{children}</MotionConfig>
     </Contexto.Provider>
   )
+}
+
+/**
+ * Hora actual que se actualiza cada `cada` ms. Devuelve null en el primer
+ * render (servidor e hidratación) para no desfasar el HTML.
+ */
+export function useAhora(cada = 30000) {
+  const [ahora, setAhora] = useState<number | null>(null)
+  useEffect(() => {
+    const primero = window.requestAnimationFrame(() => setAhora(Date.now()))
+    const t = window.setInterval(() => setAhora(Date.now()), cada)
+    return () => {
+      window.cancelAnimationFrame(primero)
+      window.clearInterval(t)
+    }
+  }, [cada])
+  return ahora
 }

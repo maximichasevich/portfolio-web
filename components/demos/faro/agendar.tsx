@@ -98,11 +98,24 @@ function validar(paso: number, d: Datos): Errores {
 
 /** "Agendar primera reunión": formulario por pasos que arma un correo. */
 export function Agendar() {
-  const { abierta, abrir, cerrar, alCerrar } = useFaro()
+  const { abierta, abrir, cerrar, alCerrar, semilla } = useFaro()
   const [paso, setPaso] = useState(0)
   const [datos, setDatos] = useState<Datos>(vacio)
   const [errores, setErrores] = useState<Errores>({})
   const [enviado, setEnviado] = useState(false)
+  const [semillaVista, setSemillaVista] = useState(semilla)
+
+  // Si otra sección (por ejemplo, el estimador) abre la agenda con datos,
+  // se precargan durante el render, sin efectos.
+  if (semilla !== semillaVista) {
+    setSemillaVista(semilla)
+    if (semilla) {
+      setDatos((d) => ({ ...d, ...(semilla.datos as Partial<Datos>) }))
+      setPaso(0)
+      setEnviado(false)
+      setErrores({})
+    }
+  }
   const titulo = useRef<HTMLHeadingElement>(null)
   const primerPaso = useRef(true)
 

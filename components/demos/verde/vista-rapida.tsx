@@ -1,9 +1,11 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { useState } from "react"
 import { Dialog, RadioGroup } from "radix-ui"
 import {
+  ArrowRight,
   Droplets,
   PawPrint,
   Ruler,
@@ -23,7 +25,9 @@ import {
   textoLuz,
   type Planta,
 } from "@/components/demos/verde/catalogo"
-import { useTienda } from "@/components/demos/verde/estado"
+import { rutaPlanta, useTienda } from "@/components/demos/verde/estado"
+import { primerTamanoDisponible, sinStock, stockDe } from "@/components/demos/verde/extras"
+import { EstadoStock, SelectorColor } from "@/components/demos/verde/opciones"
 import {
   BotonFavorito,
   Contador,
@@ -61,8 +65,9 @@ export function VistaRapida() {
 
 function Ficha({ planta }: { planta: Planta }) {
   const { agregar, abrir, abrirVistaRapida } = useTienda()
-  const [tamanoId, setTamanoId] = useState(planta.tamanos[0].id)
+  const [tamanoId, setTamanoId] = useState(primerTamanoDisponible(planta).id)
   const [macetaId, setMacetaId] = useState(macetas[0].id)
+  const [colorId, setColorId] = useState("blanco")
   const [cantidad, setCantidad] = useState(1)
   const [foto, setFoto] = useState(0)
   const precio = precioVariante(planta, tamanoId, macetaId)
@@ -80,8 +85,10 @@ function Ficha({ planta }: { planta: Planta }) {
     },
   ]
 
+  const agotado = sinStock(planta.id, tamanoId)
+
   function comprar() {
-    agregar(planta.id, { tamanoId, macetaId, cantidad })
+    agregar(planta.id, { tamanoId, macetaId, colorId, cantidad })
     abrirVistaRapida(null)
     abrir("carrito")
   }
@@ -226,10 +233,11 @@ function Ficha({ planta }: { planta: Planta }) {
                 key={t.id}
                 value={t.id}
                 className="vt-opcion px-4 py-2.5 text-left"
+                onClick={() => setCantidad(1)}
               >
                 <span className="block text-sm font-extrabold">{t.nombre}</span>
                 <span className="block text-xs text-[var(--vt-tinta-70)] tabular-nums">
-                  {pesos(t.precio)}
+                  {sinStock(planta.id, t.id) ? "Sin stock" : pesos(t.precio)}
                 </span>
               </RadioGroup.Item>
             ))}
@@ -262,20 +270,39 @@ function Ficha({ planta }: { planta: Planta }) {
           </fieldset>
         )}
 
+        {planta.conMaceta && macetaId === "ceramica" && (
+          <div className="mt-4">
+            <SelectorColor valor={colorId} onCambio={setColorId} chico />
+          </div>
+        )}
+
+        <div className="mt-5">
+          <EstadoStock planta={planta} tamanoId={tamanoId} />
+        </div>
+
         <p className="mt-5 rounded-2xl bg-[var(--vt-manteca)] p-3.5 text-sm leading-snug">
           <strong className="font-extrabold">Tip de la casa:</strong> {planta.consejo}
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Contador valor={cantidad} onCambio={setCantidad} nombre={planta.nombre} />
-          <button type="button" className="vt-boton h-12 flex-1 px-6 text-base" onClick={comprar}>
+          <Contador valor={cantidad} onCambio={setCantidad} nombre={planta.nombre} max={Math.max(1, stockDe(planta.id, tamanoId))} />
+          <button type="button" className="vt-boton h-12 flex-1 px-6 text-base" onClick={comprar} disabled={agotado}>
             <ShoppingBag className="size-5" aria-hidden="true" />
-            Agregar · {pesos(precio * cantidad)}
+            {agotado ? "Sin stock" : <>Agregar · {pesos(precio * cantidad)}</>}
           </button>
         </div>
-        <p className="mt-3 text-xs text-[var(--vt-tinta-70)]">
-          Garantía de 30 días: si no prende, te la cambiamos.
-        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-[var(--vt-tinta-70)]">
+            Garantía de 30 días: si no prende, te la cambiamos.
+          </p>
+          <Link
+            href={rutaPlanta(planta.id)}
+            onClick={() => abrirVistaRapida(null)}
+            className="inline-flex items-center gap-1 text-sm font-extrabold underline underline-offset-4"
+          >
+            Ver ficha completa, reseñas y 3D <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </div>
   )

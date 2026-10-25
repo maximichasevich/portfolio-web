@@ -1,0 +1,293 @@
+/* Estudio Faro · laboratorio (maqueta 3D, corte, comparador y mapa).
+   Solo se anima transform y opacity. */
+
+/* ---- Control deslizante fino, como una regla ---- */
+.faro .rango {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 1.5rem;
+  background: transparent;
+  cursor: pointer;
+}
+.faro .rango::-webkit-slider-runnable-track {
+  height: 1px;
+  background: var(--carbon);
+}
+.faro .rango::-moz-range-track {
+  height: 1px;
+  background: var(--carbon);
+}
+.faro .rango::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-top: -0.4375rem;
+  border: 1px solid var(--carbon);
+  background: var(--papel);
+  transition: background-color 0.2s ease;
+}
+.faro .rango::-moz-range-thumb {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 1px solid var(--carbon);
+  border-radius: 0;
+  background: var(--papel);
+}
+.faro .rango:hover::-webkit-slider-thumb,
+.faro .rango:focus-visible::-webkit-slider-thumb {
+  background: var(--carbon);
+}
+.faro .rango:focus-visible {
+  outline-offset: 2px;
+}
+
+/* ---- Maqueta axonométrica en CSS 3D ---- */
+.faro .maqueta-escena {
+  --u: 10.5px;
+  perspective: 2600px;
+  touch-action: pan-y;
+  background-image:
+    linear-gradient(rgba(15, 15, 13, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 15, 13, 0.035) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: center;
+}
+@media (min-width: 640px) {
+  .faro .maqueta-escena {
+    --u: 15px;
+  }
+}
+@media (min-width: 1024px) {
+  .faro .maqueta-escena {
+    --u: 18px;
+  }
+}
+.faro .maqueta-centro {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+  transform: translateY(calc(var(--u) * 2.4));
+}
+.faro .maqueta-modelo {
+  --e: 0;
+  position: relative;
+  width: calc(var(--a) * var(--u));
+  height: calc(var(--b) * var(--u));
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 58deg)) rotateZ(var(--rz, -34deg));
+  will-change: transform;
+}
+.faro .maqueta-modelo[data-suave] {
+  transition: transform 0.95s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.faro .maqueta-terreno {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(-1px);
+  border: 1px solid rgba(15, 15, 13, 0.28);
+  background-color: rgba(239, 235, 228, 0.7);
+  background-image:
+    linear-gradient(rgba(15, 15, 13, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 15, 13, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(15, 15, 13, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 15, 13, 0.045) 1px, transparent 1px);
+  background-size:
+    calc(var(--u) * 5) calc(var(--u) * 5),
+    calc(var(--u) * 5) calc(var(--u) * 5),
+    var(--u) var(--u),
+    var(--u) var(--u);
+}
+.faro .maqueta-sombra {
+  transition: opacity 0.4s ease;
+}
+
+.faro .pl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: calc(var(--a) * var(--u));
+  height: calc(var(--b) * var(--u));
+  transform-origin: 0 0;
+  transition:
+    transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.45s ease;
+}
+.faro .pl-h {
+  transform: translate3d(
+    calc(var(--x) * var(--u)),
+    calc(var(--y) * var(--u)),
+    calc((var(--z) + var(--n) * var(--e)) * var(--u))
+  );
+}
+.faro .pl-x {
+  transform-origin: 0 100%;
+  transform: translate3d(
+      calc(var(--x) * var(--u)),
+      calc((var(--y) - var(--b)) * var(--u)),
+      calc((var(--z) + var(--n) * var(--e)) * var(--u))
+    )
+    rotateX(-90deg);
+}
+.faro .pl-y {
+  transform-origin: 0 100%;
+  transform: translate3d(
+      calc(var(--x) * var(--u)),
+      calc((var(--y) - var(--b)) * var(--u)),
+      calc((var(--z) + var(--n) * var(--e)) * var(--u))
+    )
+    rotateZ(90deg) rotateX(-90deg);
+}
+
+.faro .k-losa {
+  border: 1px solid rgba(15, 15, 13, 0.5);
+  background: rgba(15, 15, 13, 0.045);
+}
+.faro .k-macizo {
+  border: 1px solid rgba(15, 15, 13, 0.62);
+  background: rgba(247, 245, 240, 0.86);
+}
+.faro .k-vidrio {
+  border: 1px solid rgba(15, 15, 13, 0.62);
+  background-color: rgba(201, 169, 110, 0.1);
+  background-image: linear-gradient(
+    90deg,
+    rgba(15, 15, 13, 0.4) 1px,
+    transparent 1px
+  );
+  background-size: calc(var(--u) * 1.75) 100%;
+}
+.faro .k-ventana {
+  border: 1px solid rgba(15, 15, 13, 0.62);
+  background-color: rgba(247, 245, 240, 0.86);
+  background-image: linear-gradient(
+    to bottom,
+    transparent 30%,
+    rgba(15, 15, 13, 0.55) 30%,
+    rgba(15, 15, 13, 0.55) calc(30% + 1px),
+    rgba(201, 169, 110, 0.16) calc(30% + 1px),
+    rgba(201, 169, 110, 0.16) 64%,
+    rgba(15, 15, 13, 0.55) 64%,
+    rgba(15, 15, 13, 0.55) calc(64% + 1px),
+    transparent calc(64% + 1px)
+  );
+}
+.faro .k-columna {
+  background: rgba(15, 15, 13, 0.6);
+}
+.faro .k-techo {
+  border: 1px solid rgba(15, 15, 13, 0.72);
+  background-color: rgba(247, 245, 240, 0.93);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 7px,
+    rgba(15, 15, 13, 0.06) 7px 8px
+  );
+}
+.faro .maqueta-modelo[data-sin-estructura] .cat-estructura,
+.faro .maqueta-modelo[data-sin-muros] .cat-muros,
+.faro .maqueta-modelo[data-sin-cubierta] .cat-cubierta {
+  opacity: 0;
+}
+
+/* ---- Corte: rayos de sol y ventilación ---- */
+.faro .corte-grupo {
+  transition: opacity 0.7s ease;
+}
+.faro .corte-sol {
+  transform-box: view-box;
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes faro-aire {
+  from {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(var(--viaje, 300px));
+    opacity: 0;
+  }
+}
+.faro .corte-aire {
+  transform-box: view-box;
+  animation: faro-aire 3.6s linear infinite;
+}
+.faro .corte-aire[data-pausa="true"] {
+  animation-play-state: paused;
+}
+
+/* ---- Comparador croquis / obra ---- */
+.faro .comparador {
+  --p: 0.5;
+  touch-action: pan-y;
+}
+.faro .comparador-velo {
+  transform: translateX(calc((var(--p) - 1) * 100%));
+}
+.faro .comparador-velo > * {
+  transform: translateX(calc((1 - var(--p)) * 100%));
+}
+.faro .comparador-linea {
+  transform: translateX(calc(var(--p) * 100%));
+}
+
+/* ---- Tarjetas con parallax 3D ---- */
+.faro .inclinable {
+  --px: 0;
+  --py: 0;
+  transform: perspective(1100px) rotateX(calc(var(--py) * -2.6deg))
+    rotateY(calc(var(--px) * 3.4deg));
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.faro .inclinable[data-activa] {
+  transition-duration: 0.18s;
+}
+.faro .inclinable .profundidad {
+  transform: translate3d(
+      calc(var(--px) * -12px),
+      calc(var(--py) * -10px),
+      0
+    )
+    scale(1.07);
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.faro .inclinable[data-activa] .profundidad {
+  transition-duration: 0.18s;
+}
+
+/* Lo decorativo corre aunque el sistema pida reducir movimiento (pedido
+   del dueño); lo continuo tiene botón de pausa. */
+@media (prefers-reduced-motion: reduce) {
+  .faro .pl {
+    transition-duration: 0.75s, 0.45s !important;
+  }
+  .faro .maqueta-modelo[data-suave] {
+    transition-duration: 0.95s !important;
+  }
+  .faro .corte-grupo {
+    transition-duration: 0.7s !important;
+  }
+  .faro .corte-sol {
+    transition-duration: 0.9s !important;
+  }
+  .faro .corte-aire {
+    animation-duration: 3.6s !important;
+    animation-iteration-count: infinite !important;
+  }
+  .faro .inclinable,
+  .faro .inclinable .profundidad {
+    transition-duration: 0.7s !important;
+  }
+  .faro .inclinable[data-activa],
+  .faro .inclinable[data-activa] .profundidad {
+    transition-duration: 0.18s !important;
+  }
+}

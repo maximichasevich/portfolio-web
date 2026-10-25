@@ -4,6 +4,8 @@ import { Headphones, Key, MessageSquareText, Zap } from "lucide-react"
 
 import { BlurFade } from "@/components/ui/blur-fade"
 import { MagicCard } from "@/components/ui/magic-card"
+import { Inclinable } from "@/components/inicio/interacciones"
+import { AnatomiaWeb } from "@/components/inicio/modelos-3d"
 import { razones } from "@/data/perfil"
 
 const iconos = [MessageSquareText, Key, Zap, Headphones]
@@ -34,6 +36,8 @@ export function Razones() {
               Tres años de carrera en Programación, bachillerato en Diseño Web y
               una regla: que vos entiendas todo lo que pasa con tu página.
             </p>
+            {/* Modelo 3D: las capas de una web. */}
+            <AnatomiaWeb className="mt-8" />
           </div>
 
           <ul className="grid gap-4 sm:grid-cols-2">
@@ -48,25 +52,29 @@ export function Razones() {
                   offset={16}
                 >
                   <li className="h-full">
-                    <MagicCard
-                      className="h-full rounded-3xl border border-[var(--borde)] bg-[var(--nebulosa)]"
-                      gradientColor="rgba(124,92,255,0.35)"
-                      gradientFrom="#39d5ff"
-                      gradientTo="#7c5cff"
-                      gradientSize={260}
-                      gradientOpacity={0.6}
-                    >
-                      <div className="flex h-full flex-col p-6 md:p-7">
-                        <Icono
-                          className="size-6 text-[var(--cian)]"
-                          aria-hidden="true"
-                        />
-                        <h3 className="display-md mt-5 text-xl">{r.titulo}</h3>
-                        <p className="mt-3 text-sm leading-relaxed text-[var(--estrella-70)]">
-                          {r.descripcion}
-                        </p>
-                      </div>
-                    </MagicCard>
+                    <Inclinable className="h-full" grados={8}>
+                      <MagicCard
+                        className="h-full rounded-3xl border border-[var(--borde)] bg-[var(--nebulosa)]"
+                        gradientColor="rgba(124,92,255,0.35)"
+                        gradientFrom="#39d5ff"
+                        gradientTo="#7c5cff"
+                        gradientSize={260}
+                        gradientOpacity={0.6}
+                      >
+                        <div className="flex h-full flex-col p-6 md:p-7">
+                          <Icono
+                            className="size-6 text-[var(--cian)]"
+                            aria-hidden="true"
+                          />
+                          <h3 className="display-md mt-5 text-xl">
+                            {r.titulo}
+                          </h3>
+                          <p className="mt-3 text-sm leading-relaxed text-[var(--estrella-70)]">
+                            {r.descripcion}
+                          </p>
+                        </div>
+                      </MagicCard>
+                    </Inclinable>
                   </li>
                 </BlurFade>
               )

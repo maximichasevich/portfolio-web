@@ -11,9 +11,13 @@ import {
 
 export type Capa = "menu" | "clientes" | "agendar"
 
+/** Datos con los que otra parte del sitio precarga la agenda. */
+export type Semilla = { n: number; datos: Record<string, string> }
+
 type ContextoFaro = {
   abierta: Capa | null
-  abrir: (capa: Capa) => void
+  abrir: (capa: Capa, datos?: Record<string, string>) => void
+  semilla: Semilla | null
   cerrar: () => void
   /** Botón "Menú": a donde vuelve el foco si el disparador ya no existe. */
   botonMenu: React.RefObject<HTMLButtonElement | null>
@@ -30,11 +34,13 @@ const Contexto = createContext<ContextoFaro | null>(null)
  */
 export function ProveedorFaro({ children }: { children: React.ReactNode }) {
   const [abierta, setAbierta] = useState<Capa | null>(null)
+  const [semilla, setSemilla] = useState<Semilla | null>(null)
   const botonMenu = useRef<HTMLButtonElement | null>(null)
   const volverA = useRef<HTMLElement | null>(null)
   const siguiente = useRef<Capa | null>(null)
 
-  const abrir = useCallback((capa: Capa) => {
+  const abrir = useCallback((capa: Capa, datos?: Record<string, string>) => {
+    if (datos) setSemilla((s) => ({ n: (s?.n ?? 0) + 1, datos }))
     const activo = document.activeElement as HTMLElement | null
     const dentroDeCapa = activo?.closest("[role='dialog']")
     if (!dentroDeCapa) volverA.current = activo
@@ -59,8 +65,8 @@ export function ProveedorFaro({ children }: { children: React.ReactNode }) {
   }, [])
 
   const valor = useMemo(
-    () => ({ abierta, abrir, cerrar, botonMenu, alCerrar }),
-    [abierta, abrir, cerrar, alCerrar]
+    () => ({ abierta, abrir, semilla, cerrar, botonMenu, alCerrar }),
+    [abierta, abrir, semilla, cerrar, alCerrar]
   )
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>

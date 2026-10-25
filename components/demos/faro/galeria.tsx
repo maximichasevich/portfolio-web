@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
-import { Dialog } from "radix-ui"
+import { Dialog, Tabs } from "radix-ui"
 import { ArrowLeft, ArrowRight, X } from "lucide-react"
 
+import "./laboratorio.css"
 import { useFaro } from "@/components/demos/faro/contexto"
 import {
   categorias,
@@ -12,6 +13,8 @@ import {
   type Categoria,
   type Obra,
 } from "@/components/demos/faro/obras"
+import { GaleriaDetalles, Plano } from "@/components/demos/faro/plano"
+import { EVENTO_OBRA } from "@/components/demos/faro/utiles"
 import { cn } from "@/lib/utils"
 
 type Filtro = "Todas" | Categoria
@@ -30,6 +33,48 @@ const ritmoMovil = ["w-full", "ml-auto w-[86%]", "w-[86%]"]
 const dosDigitos = (n: number) => String(n).padStart(2, "0")
 
 /**
+ * Parallax 3D de las fotos: la tarjeta se inclina hacia el cursor y la foto
+ * se desplaza en sentido contrario. Escribe variables CSS dentro de rAF,
+ * sin re-renderizar. Solo con mouse: al tocar, la tarjeta abre la ficha.
+ */
+function useInclinacion() {
+  const cuadroRef = useRef(0)
+  const rectRef = useRef<DOMRect | null>(null)
+
+  function escribir(el: HTMLElement, px: number, py: number, activa: boolean) {
+    cancelAnimationFrame(cuadroRef.current)
+    cuadroRef.current = requestAnimationFrame(() => {
+      el.style.setProperty("--px", px.toFixed(3))
+      el.style.setProperty("--py", py.toFixed(3))
+      if (activa) el.dataset.activa = ""
+      else delete el.dataset.activa
+    })
+  }
+  const capa = (e: React.PointerEvent<HTMLElement>) =>
+    e.currentTarget.querySelector<HTMLElement>(".inclinable")
+
+  return {
+    onPointerEnter(e: React.PointerEvent<HTMLElement>) {
+      if (e.pointerType !== "mouse") return
+      rectRef.current = capa(e)?.getBoundingClientRect() ?? null
+    },
+    onPointerMove(e: React.PointerEvent<HTMLElement>) {
+      const el = capa(e)
+      const r = rectRef.current
+      if (e.pointerType !== "mouse" || !el || !r) return
+      const px = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2))
+      const py = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2))
+      escribir(el, px, py, true)
+    },
+    onPointerLeave(e: React.PointerEvent<HTMLElement>) {
+      const el = capa(e)
+      rectRef.current = null
+      if (el) escribir(el, 0, 0, false)
+    },
+  }
+}
+
+/**
  * Obras en grilla asimétrica con filtros por tipo. Cada obra abre su ficha
  * (foto grande, ficha técnica, texto) con anterior/siguiente por teclado.
  */
@@ -37,6 +82,20 @@ export function Galeria() {
   const [filtro, setFiltro] = useState<Filtro>("Todas")
   const [indice, setIndice] = useState(0)
   const [abierta, setAbierta] = useState(false)
+  const inclinacion = useInclinacion()
+
+  // Otras secciones (el mapa de obras) pueden abrir una ficha.
+  useEffect(() => {
+    const alPedir = (e: Event) => {
+      const i = obras.findIndex((o) => o.id === (e as CustomEvent<string>).detail)
+      if (i < 0) return
+      setFiltro("Todas")
+      setIndice(i)
+      setAbierta(true)
+    }
+    window.addEventListener(EVENTO_OBRA, alPedir)
+    return () => window.removeEventListener(EVENTO_OBRA, alPedir)
+  }, [])
 
   const visibles =
     filtro === "Todas" ? obras : obras.filter((o) => o.categoria === filtro)
@@ -106,20 +165,23 @@ export function Galeria() {
                 }}
                 aria-haspopup="dialog"
                 className="group block w-full text-left"
+                {...inclinacion}
               >
                 <div
                   className={cn(
-                    "relative overflow-hidden bg-[var(--hueso-2)]",
+                    "inclinable relative overflow-hidden bg-[var(--hueso-2)]",
                     r.foto
                   )}
                 >
-                  <Image
-                    src={o.foto.src}
-                    alt={`${o.nombre}, ${o.lugar}`}
-                    fill
-                    sizes="(min-width: 1024px) 60vw, 90vw"
-                    className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03] group-focus-visible:scale-[1.03]"
-                  />
+                  <div className="profundidad absolute inset-0">
+                    <Image
+                      src={o.foto.src}
+                      alt={`${o.nombre}, ${o.lugar}`}
+                      fill
+                      sizes="(min-width: 1024px) 60vw, 90vw"
+                      className="object-cover"
+                    />
+                  </div>
                   <span className="etiqueta absolute right-3 bottom-3 bg-[var(--hueso)] px-2 py-1 opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
                     Ver ficha
                   </span>
@@ -169,6 +231,7 @@ function Ficha({
   alMover: (i: number) => void
 }) {
   const { abrir, abierta: capa } = useFaro()
+  const [pestana, setPestana] = useState("memoria")
   const total = lista.length
   const obra = lista[indice]
   const anterior = lista[(indice - 1 + total) % total]
@@ -187,6 +250,8 @@ function Ficha({
           if (capa) e.preventDefault()
         }}
         onKeyDown={(e) => {
+          // Las flechas dentro de las pestañas mueven entre pestañas.
+          if ((e.target as HTMLElement).closest("[role='tablist']")) return
           if (e.key === "ArrowRight") {
             e.preventDefault()
             mover(1)
@@ -236,33 +301,77 @@ function Ficha({
               {obra.bajada}
             </p>
 
-            <dl className="mono mt-8 grid grid-cols-[7rem_1fr] border-t border-[var(--linea)] text-[0.8rem]">
-              {(
-                [
-                  ["Ubicación", obra.lugar],
-                  ["Coordenadas", obra.coordenadas],
-                  ["Año", String(obra.anio)],
-                  ["Superficie", `${obra.m2} m²`],
-                  ["Tipo", obra.tipo],
-                  ["Cliente", obra.cliente],
-                  ["Estado", obra.estado],
-                  ["Equipo", obra.equipo.join(", ")],
-                ] as const
-              ).map(([k, v]) => (
-                <div key={k} className="contents">
-                  <dt className="border-b border-[var(--linea)] py-2.5 text-[var(--piedra)]">
-                    {k}
-                  </dt>
-                  <dd className="border-b border-[var(--linea)] py-2.5">{v}</dd>
-                </div>
-              ))}
-            </dl>
+            <Tabs.Root value={pestana} onValueChange={setPestana} className="mt-8">
+              <Tabs.List aria-label="Información de la obra" className="flex gap-5 overflow-x-auto border-b border-[var(--linea)]">
+                {[
+                  ["memoria", "Memoria"],
+                  ["planta", "Planta"],
+                  ["materiales", "Materiales"],
+                  ["detalles", "Detalles"],
+                ].map(([v, t]) => (
+                  <Tabs.Trigger
+                    key={v}
+                    value={v}
+                    className="etiqueta -mb-px min-h-11 shrink-0 border-b border-transparent text-[var(--piedra)] transition-colors hover:text-[var(--carbon)] data-[state=active]:border-[var(--carbon)] data-[state=active]:text-[var(--carbon)]"
+                  >
+                    {t}
+                  </Tabs.Trigger>
+                ))}
+              </Tabs.List>
+              <Tabs.Content value="memoria" className="aparece pt-6 outline-none">
+                <dl className="mono grid grid-cols-[7rem_1fr] border-t border-[var(--linea)] text-[0.8rem]">
+                  {(
+                    [
+                      ["Ubicación", obra.lugar],
+                      ["Coordenadas", obra.coordenadas],
+                      ["Año", String(obra.anio)],
+                      ["Superficie", `${obra.m2} m²`],
+                      ["Tipo", obra.tipo],
+                      ["Cliente", obra.cliente],
+                      ["Estado", obra.estado],
+                      ["Equipo", obra.equipo.join(", ")],
+                    ] as const
+                  ).map(([k, v]) => (
+                    <div key={k} className="contents">
+                      <dt className="border-b border-[var(--linea)] py-2.5 text-[var(--piedra)]">
+                        {k}
+                      </dt>
+                      <dd className="border-b border-[var(--linea)] py-2.5">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
 
-            <div className="mt-8 space-y-4 text-[0.95rem] leading-relaxed text-[var(--carbon)]/85">
-              {obra.texto.map((p) => (
-                <p key={p.slice(0, 32)}>{p}</p>
-              ))}
-            </div>
+                <div className="mt-8 space-y-4 text-[0.95rem] leading-relaxed text-[var(--carbon)]/85">
+                  {obra.texto.map((p) => (
+                    <p key={p.slice(0, 32)}>{p}</p>
+                  ))}
+                </div>
+              </Tabs.Content>
+              <Tabs.Content value="planta" className="aparece pt-6 outline-none">
+                <Plano obra={obra} />
+              </Tabs.Content>
+              <Tabs.Content value="materiales" className="aparece pt-6 outline-none">
+                <ul className="border-t border-[var(--linea)]">
+                  {obra.materiales.map((m, i) => (
+                    <li key={m} className="grid grid-cols-[2.5rem_1.25rem_1fr] items-center gap-3 border-b border-[var(--linea)] py-3 text-sm">
+                      <span className="mono text-xs text-[var(--piedra)]">{dosDigitos(i + 1)}</span>
+                      <span
+                        aria-hidden="true"
+                        className="block size-4 border border-[var(--carbon)]/40"
+                        style={{ background: ["#d9d3c7", "#8c857a", "#b9a27c", "#3a3833", "#e8e3da"][i % 5] }}
+                      />
+                      {m}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 text-xs leading-relaxed text-[var(--piedra)]">
+                  Las muestras se pueden ver en el estudio, con cita previa.
+                </p>
+              </Tabs.Content>
+              <Tabs.Content value="detalles" className="aparece pt-6 outline-none">
+                <GaleriaDetalles obra={obra} />
+              </Tabs.Content>
+            </Tabs.Root>
 
             <button
               type="button"

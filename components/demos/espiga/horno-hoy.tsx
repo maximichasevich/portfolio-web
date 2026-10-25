@@ -1,5 +1,6 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { Flame } from "lucide-react"
 
 import { useAhora } from "@/components/demos/espiga/estado"
@@ -10,7 +11,13 @@ import {
   momentoMontevideo,
   type Horneada,
 } from "@/components/demos/espiga/horario"
+import { Diferido, Inclinable } from "@/components/demos/espiga/tres-d"
 import { cn } from "@/lib/utils"
+
+const Horno3D = dynamic(
+  () => import("@/components/demos/espiga/horno-3d").then((m) => m.Horno3D),
+  { ssr: false, loading: () => <div className="horno-reserva" aria-hidden="true" /> }
+)
 
 function duracion(min: number) {
   const h = Math.floor(min / 60)
@@ -52,13 +59,31 @@ export function HornoHoy() {
   const pos = (m: number) =>
     `${Math.min(100, Math.max(0, ((m - inicio) / (fin - inicio)) * 100))}%`
 
+  // La horneada que se muestra adentro del horno: la próxima, o la última.
+  const minutos = momento?.minutos ?? 0
+  const enHorno =
+    horneadas.find((h) => h.minuto + 90 > minutos) ??
+    horneadas[horneadas.length - 1]
+  const estadoHorno = estadoHorneada(enHorno, momento?.minutos ?? null)
+
   return (
     <div>
+      <Diferido
+        className="mb-12"
+        reserva={<div className="horno-reserva" aria-hidden="true" />}
+      >
+        <Horno3D
+          titulo={`${enHorno.titulo} · ${hora(enHorno.minuto)}`}
+          productos={enHorno.productos}
+          estado={estadoHorno?.texto ?? "Dos horneadas por día"}
+        />
+      </Diferido>
       <div className="grid gap-5 md:grid-cols-2">
         {horneadas.map((h) => {
           const estado = estadoHorneada(h, momento?.minutos ?? null)
           return (
-            <article
+            <Inclinable
+              as="article"
               key={h.minuto}
               className="ticket sombra-papel px-6 py-8 sm:px-8"
             >
@@ -94,7 +119,7 @@ export function HornoHoy() {
                   </li>
                 ))}
               </ul>
-            </article>
+            </Inclinable>
           )
         })}
         {horneadas.length === 1 && (

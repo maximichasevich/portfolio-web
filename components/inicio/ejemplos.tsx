@@ -12,11 +12,11 @@ import {
 } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
 
+import { Inclinable } from "@/components/inicio/interacciones"
 import { HyperText } from "@/components/ui/hyper-text"
 import { Iphone } from "@/components/ui/iphone"
 import { Safari } from "@/components/ui/safari"
 import { capturas, ejemplos } from "@/data/trabajo"
-import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { cn } from "@/lib/utils"
 
 const INTERVALO = 7000
@@ -30,11 +30,31 @@ function desfase(i: number, activo: number, total: number) {
 }
 
 export function Ejemplos() {
-  const reducido = useReducedMotion()
   const [activo, setActivo] = useState(0)
   const [pausado, setPausado] = useState(false)
   /** Pausa elegida con el botón: tiene prioridad sobre el mouse y el foco. */
   const [detenido, setDetenido] = useState(false)
+  /**
+   * Las capturas del carrusel se piden recién cuando la sección está cerca
+   * de la pantalla: así no compiten con la carga inicial de la portada.
+   */
+  const seccionRef = useRef<HTMLElement>(null)
+  const [cerca, setCerca] = useState(false)
+  useEffect(() => {
+    const el = seccionRef.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setCerca(true)
+          io.disconnect()
+        }
+      },
+      { rootMargin: "600px 0px" }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
   /** Tarjeta bajo el mouse: se destaca en su lugar sin cambiar la activa. */
   const [resaltado, setResaltado] = useState<number | null>(null)
   const total = ejemplos.length
@@ -70,6 +90,7 @@ export function Ejemplos() {
 
   return (
     <section
+      ref={seccionRef}
       id="trabajos"
       className="relative scroll-mt-24 overflow-hidden px-5 py-24 md:px-10 md:py-32"
       aria-labelledby="titulo-trabajos"
@@ -153,12 +174,41 @@ export function Ejemplos() {
                     opacity: brilla ? 1 : centro ? 0.4 : 0.35,
                     zIndex: brilla ? 3 : centro ? 2 : 1,
                     filter: brilla ? "saturate(1)" : "saturate(0.6)",
+                    // La destacada de un costado sube apenas, como si se acercara.
+                    y: brilla && !centro ? "-3%" : "0%",
                   }}
-                  transition={
-                    reducido
-                      ? { duration: 0 }
-                      : { type: "spring", stiffness: 140, damping: 22 }
-                  }
+                  // Transición lenta y elástica para que el cambio de primer plano
+                  // se sienta fluido. Corre aunque el sistema pida reducir
+                  // movimiento (decisión del dueño del sitio).
+                  transition={{
+                    x: {
+                      type: "spring",
+                      stiffness: 55,
+                      damping: 18,
+                      mass: 1.1,
+                    },
+                    rotateY: {
+                      type: "spring",
+                      stiffness: 45,
+                      damping: 16,
+                      mass: 1.2,
+                    },
+                    scale: {
+                      type: "spring",
+                      stiffness: 55,
+                      damping: 15,
+                      mass: 1.1,
+                    },
+                    y: {
+                      type: "spring",
+                      stiffness: 50,
+                      damping: 14,
+                      mass: 1.1,
+                    },
+                    opacity: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+                    filter: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+                    zIndex: { delay: 0.05 },
+                  }}
                   style={{ transformStyle: "preserve-3d" }}
                   aria-hidden={!centro}
                 >
@@ -174,23 +224,25 @@ export function Ejemplos() {
                         : "cursor-pointer"
                     )}
                   >
-                    <div
-                      className="relative rounded-xl shadow-[0_40px_120px_-30px_rgba(57,213,255,0.45)]"
-                      style={{
-                        boxShadow: brilla
-                          ? `0 40px 120px -30px ${e.color}88`
-                          : undefined,
-                      }}
-                    >
-                      <Safari
-                        url={`${e.slug}.uy`}
-                        imageSrc={e.escritorio}
-                        className="pointer-events-none select-none"
-                      />
-                      <div className="pointer-events-none absolute -right-[4%] -bottom-[14%] w-[22%] drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
-                        <Iphone src={e.celular} />
+                    <Inclinable grados={5} reflejo={false}>
+                      <div
+                        className="relative rounded-xl shadow-[0_40px_120px_-30px_rgba(57,213,255,0.45)] transition-shadow duration-1000 ease-out"
+                        style={{
+                          boxShadow: brilla
+                            ? `0 40px 120px -30px ${e.color}88`
+                            : undefined,
+                        }}
+                      >
+                        <Safari
+                          url={`${e.slug}.uy`}
+                          imageSrc={cerca ? e.escritorio : undefined}
+                          className="pointer-events-none select-none"
+                        />
+                        <div className="pointer-events-none absolute -right-[4%] -bottom-[14%] w-[22%] drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
+                          <Iphone src={cerca ? e.celular : undefined} />
+                        </div>
                       </div>
-                    </div>
+                    </Inclinable>
                   </button>
                 </motion.div>
               )
@@ -278,10 +330,10 @@ export function Ejemplos() {
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={actual.slug}
-              initial={reducido ? false : { opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={reducido ? undefined : { opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               className="hud barrido relative mt-8 grid gap-8 overflow-hidden rounded-3xl p-6 md:grid-cols-[1fr_1.2fr_auto] md:items-center md:p-8"
               aria-live="polite"
             >
@@ -396,11 +448,14 @@ function MuroPantallas() {
   )
   return (
     <div className="muro relative h-full overflow-hidden rounded-3xl [mask-image:radial-gradient(70%_75%_at_50%_50%,black_55%,transparent)] [perspective:1400px]">
-      <div className="absolute inset-x-[-15%] top-[-30%] bottom-[-30%] grid grid-cols-3 gap-4 [transform:rotateX(32deg)_rotateZ(-14deg)] md:grid-cols-4 md:gap-6">
+      <div className="absolute inset-x-[-15%] top-[-30%] bottom-[-30%] grid [transform:rotateX(32deg)_rotateZ(-14deg)] grid-cols-3 gap-4 md:grid-cols-4 md:gap-6">
         {columnas.map((imgs, c) => (
           <div
             key={c}
-            className={cn("muro-col flex flex-col gap-4 md:gap-6", c === 3 && "hidden md:flex")}
+            className={cn(
+              "muro-col flex flex-col gap-4 md:gap-6",
+              c === 3 && "hidden md:flex"
+            )}
             data-sentido={c % 2 === 0 ? "sube" : "baja"}
             style={{ "--duracion": `${38 + c * 7}s` } as React.CSSProperties}
           >
@@ -421,7 +476,10 @@ function MuroPantallas() {
           </div>
         ))}
       </div>
-      <div className="escaneo pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div
+        className="escaneo pointer-events-none absolute inset-0"
+        aria-hidden="true"
+      />
     </div>
   )
 }

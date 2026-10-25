@@ -2,12 +2,14 @@
 
 import Image from "next/image"
 import { Dialog } from "radix-ui"
-import { Heart, Minus, Plus, Star, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Heart, Minus, Pause, Play, Plus, Star, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import type { ColorPlanta, Planta } from "@/components/demos/verde/catalogo"
 import { capaFuentes } from "@/components/demos/verde/fuentes"
 import { useTienda } from "@/components/demos/verde/estado"
+import { latido } from "@/components/demos/verde/efectos"
 
 /** Clases de fondo para cada color de planta. */
 export const fondo: Record<ColorPlanta, string> = {
@@ -146,7 +148,11 @@ export function BotonFavorito({
   return (
     <button
       type="button"
-      onClick={() => alternarFavorito(planta.id)}
+      onClick={(e) => {
+        // Si se está guardando, el corazón late y suelta corazoncitos.
+        if (!activo) latido(e.currentTarget)
+        alternarFavorito(planta.id)
+      }}
       aria-pressed={activo}
       aria-label={
         activo
@@ -179,12 +185,14 @@ export function Contador({
   onCambio,
   nombre,
   min = 1,
+  max = 20,
   chico = false,
 }: {
   valor: number
   onCambio: (n: number) => void
   nombre: string
   min?: number
+  max?: number
   chico?: boolean
 }) {
   const tam = chico ? "size-8" : "size-10"
@@ -213,7 +221,7 @@ export function Contador({
         type="button"
         className={cn("vt-icono", tam)}
         onClick={() => onCambio(valor + 1)}
-        disabled={valor >= 20}
+        disabled={valor >= Math.min(20, max)}
         aria-label={`Sumar una unidad de ${nombre}`}
       >
         <Plus className="size-4" aria-hidden="true" />
@@ -336,6 +344,74 @@ export function Campo({
           {error}
         </p>
       )}
+    </div>
+  )
+}
+
+/* ---------- Pausar animaciones continuas ---------- */
+
+export function BotonPausa({ className, claro = false }: { className?: string; claro?: boolean }) {
+  const { pausado, pausar } = useTienda()
+  return (
+    <button
+      type="button"
+      onClick={() => pausar(!pausado)}
+      aria-pressed={pausado}
+      className={cn(
+        "inline-flex h-9 items-center gap-1.5 rounded-full border-2 px-3 text-xs font-extrabold",
+        claro
+          ? "border-white/30 text-white/85 hover:border-[var(--vt-manteca)] hover:text-[var(--vt-manteca)]"
+          : "border-[var(--vt-tinta)] bg-[var(--vt-papel)] hover:bg-[var(--vt-manteca)]",
+        className
+      )}
+    >
+      {pausado ? (
+        <Play className="size-3.5" aria-hidden="true" />
+      ) : (
+        <Pause className="size-3.5" aria-hidden="true" />
+      )}
+      {pausado ? "Reanudar animaciones" : "Pausar animaciones"}
+    </button>
+  )
+}
+
+/* ---------- Montar recién al acercarse ---------- */
+
+/**
+ * Muestra un lugar reservado (con su alto) y monta el contenido recién cuando
+ * está por entrar en pantalla. Así lo pesado (3D, living) no se carga al abrir.
+ */
+export function AlAcercarse({
+  children,
+  alto,
+  className,
+  margen = "600px",
+}: {
+  children: React.ReactNode
+  alto: string
+  className?: string
+  margen?: string
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [cerca, setCerca] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setCerca(true)
+          obs.disconnect()
+        }
+      },
+      { rootMargin: margen }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [margen])
+  return (
+    <div ref={ref} className={className} style={cerca ? undefined : { minHeight: alto }}>
+      {cerca ? children : null}
     </div>
   )
 }

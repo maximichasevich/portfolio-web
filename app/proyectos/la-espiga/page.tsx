@@ -17,8 +17,17 @@ import { NotaEncargo } from "@/components/demos/espiga/encargo"
 import { HornoHoy } from "@/components/demos/espiga/horno-hoy"
 import { Paneles } from "@/components/demos/espiga/paneles"
 import { Pizarra } from "@/components/demos/espiga/pizarra"
+import { Desayunos } from "@/components/demos/espiga/desayunos"
+import { SelloMoneda } from "@/components/demos/espiga/moneda"
+import { Opiniones } from "@/components/demos/espiga/opiniones"
+import { ComoLlegar, Preguntas } from "@/components/demos/espiga/preguntas"
 import { Sello } from "@/components/demos/espiga/sello"
+import { PanDeLaSemana } from "@/components/demos/espiga/suscripcion"
 import { TablaHorarios } from "@/components/demos/espiga/tabla-horarios"
+import { TarjetaSellos } from "@/components/demos/espiga/tarjeta-sellos"
+import { TortaAMedida } from "@/components/demos/espiga/torta"
+import { Inclinable } from "@/components/demos/espiga/tres-d"
+import { Vitrina } from "@/components/demos/espiga/vitrina"
 import { whatsappDemo } from "@/lib/demo"
 
 const mapa =
@@ -167,7 +176,11 @@ export default function Page() {
 
             {/* Foto pegada con cinta, etiqueta de precio y sello */}
             <div className="relative mx-auto w-full max-w-[25rem] px-4 sm:px-0">
-              <figure className="sombra-papel relative rotate-2 bg-[#fffdf7] p-3 pb-14">
+              <Inclinable
+                as="figure"
+                max={6}
+                className="sombra-papel relative rotate-2 bg-[#fffdf7] p-3 pb-14"
+              >
                 <span
                   className="cinta -top-3 left-6 -rotate-6"
                   aria-hidden="true"
@@ -185,11 +198,16 @@ export default function Page() {
                     sizes="(min-width: 1024px) 24rem, (min-width: 640px) 25rem, 85vw"
                     className="object-cover"
                   />
+                  <span className="vapores" aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
                 </div>
                 <figcaption className="tiza absolute inset-x-3 bottom-3 text-center text-[1.45rem]">
                   El de campo, recién salido
                 </figcaption>
-              </figure>
+              </Inclinable>
               <div
                 className="kraft sombra-papel absolute bottom-24 -left-1 -rotate-6 rounded-sm border-2 border-[var(--tinta)] px-4 py-3 sm:-left-8"
                 aria-hidden="true"
@@ -201,18 +219,7 @@ export default function Page() {
                 <p className="titulo pl-3 text-[2rem] leading-none">$ 180</p>
                 <p className="pl-3 text-[0.85rem]">800 g · masa madre</p>
               </div>
-              <div
-                className="absolute -top-6 right-1 flex size-24 rotate-12 flex-col items-center justify-center rounded-full border-4 border-double border-[var(--rojo)] bg-[var(--papel)]/85 text-center text-[var(--rojo)] sm:-right-6 sm:size-28"
-                aria-hidden="true"
-              >
-                <span className="text-[0.75rem] font-bold tracking-widest uppercase">
-                  Horneado
-                </span>
-                <span className="titulo text-[1.9rem] leading-none">hoy</span>
-                <span className="text-[0.75rem] font-bold tracking-widest uppercase">
-                  en Pocitos
-                </span>
-              </div>
+              <SelloMoneda className="absolute -top-6 right-1 size-24 rotate-12 sm:-right-6 sm:size-28" />
             </div>
           </div>
         </section>
@@ -244,6 +251,26 @@ export default function Page() {
                 </li>
               ))}
             </ol>
+          </div>
+        </section>
+
+        {/* Promos de hoy: vitrina 3D */}
+        <section
+          id="promos"
+          aria-labelledby="titulo-promos"
+          className="anclas papel px-4 pt-14 pb-4 sm:px-6 md:px-8 md:pt-20"
+        >
+          <div className="mx-auto max-w-6xl">
+            <TituloSeccion
+              id="titulo-promos"
+              volanta="Hoy en el mostrador"
+              bajada="Lo que sobró de ayer a mitad de precio, combos para el mate y una promo distinta cada día. Mientras haya, está."
+            >
+              Promos de hoy
+            </TituloSeccion>
+            <div className="mt-10">
+              <Vitrina />
+            </div>
           </div>
         </section>
 
@@ -354,16 +381,28 @@ export default function Page() {
           aria-labelledby="titulo-encargos"
           className="anclas kraft border-y-2 border-[var(--tinta)] px-4 py-14 sm:px-6 md:px-8 md:py-20"
         >
-          <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2 lg:items-start">
+          <div className="mx-auto max-w-6xl">
+            <TituloSeccion
+              id="titulo-encargos"
+              volanta="Cumpleaños, bautismos, reuniones"
+              bajada="Armá tu torta y mirala en 3D antes de pedirla. Hacemos tortas y mesas dulces por encargo, con 48 horas de anticipación."
+            >
+              Tortas y encargos para tus fiestas
+            </TituloSeccion>
+            <div id="torta" className="anclas mt-10">
+              <TortaAMedida />
+            </div>
+          </div>
+          <div className="mx-auto mt-16 grid max-w-6xl gap-12 lg:grid-cols-2 lg:items-start">
             <div>
-              <TituloSeccion
-                id="titulo-encargos"
-                volanta="Cumpleaños, bautismos, reuniones"
-                bajada="Hacemos tortas y mesas dulces por encargo, con 48 horas de anticipación. Contanos qué necesitás y te pasamos presupuesto."
-              >
-                Tortas y encargos para tus fiestas
-              </TituloSeccion>
-              <ul className="mt-8 border-t-2 border-[var(--tinta)]">
+              <h3 className="titulo text-[clamp(1.8rem,4vw,2.4rem)]">
+                Mesas dulces, miga y pan para eventos
+              </h3>
+              <p className="mt-2 text-[1.1rem] text-[var(--tinta-70)]">
+                Para cumpleaños, velorios, reuniones de oficina o la fiesta del
+                club. Te pasamos presupuesto sin compromiso.
+              </p>
+              <ul className="mt-6 border-t-2 border-[var(--tinta)]">
                 {encargos.map((e) => (
                   <li
                     key={e.nombre}
@@ -418,6 +457,96 @@ export default function Page() {
           </div>
         </section>
 
+        {/* Desayunos para regalar */}
+        <section
+          id="regalos"
+          aria-labelledby="titulo-regalos"
+          className="anclas papel px-4 py-14 sm:px-6 md:px-8 md:py-20"
+        >
+          <div className="mx-auto max-w-6xl">
+            <TituloSeccion
+              id="titulo-regalos"
+              volanta="Para el Día de la Madre, un cumple o porque sí"
+              bajada="Armamos la caja, escribimos la tarjeta a mano y la llevamos a la puerta. Tocá una caja para ver qué trae."
+            >
+              Desayunos para regalar
+            </TituloSeccion>
+            <div className="mt-12">
+              <Desayunos />
+            </div>
+          </div>
+        </section>
+
+        {/* Para los de siempre: tarjeta de sellos y suscripción */}
+        <section
+          id="de-siempre"
+          aria-labelledby="titulo-de-siempre"
+          className="anclas bg-[var(--papel-2)] px-4 py-14 sm:px-6 md:px-8 md:py-20"
+        >
+          <div className="mx-auto max-w-6xl">
+            <TituloSeccion
+              id="titulo-de-siempre"
+              volanta="Para los de siempre"
+              bajada="Los vecinos que vienen todos los días se merecen algo más."
+            >
+              Tu tarjeta y tu pan de la semana
+            </TituloSeccion>
+            <div className="mt-10 grid gap-12 lg:grid-cols-2 lg:items-start">
+              <div id="tarjeta" className="anclas">
+                <h3 className="titulo text-[1.9rem]">La tarjeta de la casa</h3>
+                <p className="mt-1 mb-5 text-[1.05rem] text-[var(--tinta-70)]">
+                  Cada 10 panes, el siguiente pan de campo va de regalo.
+                </p>
+                <TarjetaSellos />
+              </div>
+              <div id="suscripcion" className="anclas">
+                <h3 className="titulo text-[1.9rem]">El pan de la semana</h3>
+                <p className="mt-1 mb-5 text-[1.05rem] text-[var(--tinta-70)]">
+                  Elegí tu pan y los días: te lo apartamos o te lo llevamos, con
+                  10 % menos. Pausala cuando te vayas de viaje.
+                </p>
+                <PanDeLaSemana />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Opiniones */}
+        <section
+          id="opiniones"
+          aria-labelledby="titulo-opiniones"
+          className="anclas kraft border-y-2 border-[var(--tinta)] px-4 py-14 sm:px-6 md:px-8 md:py-20"
+        >
+          <div className="mx-auto max-w-6xl">
+            <TituloSeccion id="titulo-opiniones" volanta="Lo que dicen los vecinos">
+              Opiniones del barrio
+            </TituloSeccion>
+            <div className="mt-8">
+              <Opiniones />
+            </div>
+          </div>
+        </section>
+
+        {/* Preguntas frecuentes */}
+        <section
+          id="preguntas"
+          aria-labelledby="titulo-preguntas"
+          className="anclas papel px-4 py-14 sm:px-6 md:px-8 md:py-20"
+        >
+          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <div>
+              <TituloSeccion
+                id="titulo-preguntas"
+                volanta="Preguntas frecuentes"
+                bajada="Si no encontrás lo que buscás, llamanos al 2709 4512. Atiende Lucía o Ramón."
+              >
+                Lo que más nos preguntan
+              </TituloSeccion>
+            </div>
+            <Preguntas />
+          </div>
+        </section>
+
         {/* Horarios y dirección */}
         <section
           id="visitanos"
@@ -426,7 +555,7 @@ export default function Page() {
         >
           <div className="mx-auto max-w-6xl">
             <TituloSeccion id="titulo-visitanos" volanta="Visitanos">
-              Horarios y dirección
+              Horarios y cómo llegar
             </TituloSeccion>
             <div className="mt-10 grid gap-8 lg:grid-cols-2">
               <div>
@@ -556,6 +685,10 @@ export default function Page() {
                       <Phone className="size-5" aria-hidden="true" />
                       2709 4512
                     </a>
+                  </div>
+                  <div className="mt-6 border-t-2 border-dashed border-[var(--tinta-20)] pt-5">
+                    <p className="titulo mb-3 text-[1.4rem]">Cómo llegar</p>
+                    <ComoLlegar />
                   </div>
                   <ul className="mt-6 grid gap-3 border-t-2 border-dashed border-[var(--tinta-20)] pt-5">
                     <li className="flex gap-3">

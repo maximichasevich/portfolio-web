@@ -1,6 +1,8 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Popover } from "radix-ui"
 import {
@@ -30,7 +32,7 @@ import {
   textoCategoria,
   type CategoriaPlanta,
 } from "@/components/demos/verde/catalogo"
-import { useTienda, type Filtros } from "@/components/demos/verde/estado"
+import { RUTA, useTienda, type Filtros } from "@/components/demos/verde/estado"
 import { Buscador } from "@/components/demos/verde/buscador"
 import { MenuCuenta } from "@/components/demos/verde/cuenta"
 import { Cajon, Logo, capa, fondo } from "@/components/demos/verde/ui"
@@ -42,19 +44,20 @@ const anuncios = [
   "Comprá antes de las 14 y te llega hoy",
   "Hasta 6 cuotas sin recargo con Mercado Pago",
   "Garantía de 30 días: si no prende, te la cambiamos",
+  "Primera compra: 10% con el código PRIMERAPLANTA",
 ]
 
 export function Anuncio() {
+  const { pausado } = useTienda()
   const [i, setI] = useState(0)
   const [pausa, setPausa] = useState(false)
 
+  // Rota sola; se frena al pasar el mouse, al enfocarla o con "Pausar animaciones".
   useEffect(() => {
-    if (pausa) return
-    const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (quieto) return
+    if (pausa || pausado) return
     const t = window.setInterval(() => setI((n) => (n + 1) % anuncios.length), 4500)
     return () => window.clearInterval(t)
-  }, [pausa])
+  }, [pausa, pausado])
 
   const mover = (d: number) =>
     setI((n) => (n + d + anuncios.length) % anuncios.length)
@@ -231,8 +234,8 @@ function MegaMenu() {
                 </li>
               </ul>
             </div>
-            <a
-              href="#quiz"
+            <Link
+              href={`${RUTA}#quiz`}
               onClick={() => setAbierto(false)}
               className="relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-[var(--vt-tinta)] bg-[var(--vt-lila)] p-5"
             >
@@ -246,7 +249,7 @@ function MegaMenu() {
                   Hacer el quiz <ChevronRight className="size-4" aria-hidden="true" />
                 </span>
               </span>
-            </a>
+            </Link>
           </div>
         </Popover.Content>
       </Popover.Portal>
@@ -283,10 +286,11 @@ export function Encabezado() {
   const { cantidadCarrito, favoritos, abrir, irAlCatalogo } = useTienda()
 
   const enlaces = [
-    { href: "#quiz", texto: "¿Qué planta va con vos?", destacado: true },
-    { href: "#cuidados", texto: "Guía de cuidados" },
-    { href: "#resenas", texto: "Reseñas" },
-    { href: "#preguntas", texto: "Ayuda" },
+    { href: `${RUTA}#quiz`, texto: "¿Qué planta va con vos?" },
+    { href: `${RUTA}#armar`, texto: "Maceta 3D", destacado: true },
+    { href: `${RUTA}#cuidados`, texto: "Cuidados" },
+    { href: `${RUTA}#club`, texto: "Club" },
+    { href: `${RUTA}#preguntas`, texto: "Ayuda" },
   ]
 
   return (
@@ -300,9 +304,9 @@ export function Encabezado() {
         >
           <Menu className="size-6" aria-hidden="true" />
         </button>
-        <a href="#inicio" aria-label="Verde Tienda, ir al inicio" className="shrink-0">
+        <Link href={RUTA} aria-label="Verde Tienda, ir al inicio" className="shrink-0">
           <Logo className="text-[1.65rem] lg:text-[2rem]" />
-        </a>
+        </Link>
 
         <Buscador className="mx-auto hidden w-full max-w-xl lg:block" />
 
@@ -319,6 +323,7 @@ export function Encabezado() {
           <MenuCuenta />
           <button
             type="button"
+            data-vt-carrito=""
             className="relative ml-1 inline-flex h-11 items-center gap-2 rounded-full border-2 border-[var(--vt-tinta)] bg-[var(--vt-coral)] px-3 font-extrabold shadow-[0_3px_0_var(--vt-tinta)] transition-transform hover:-translate-y-0.5 sm:px-4"
             onClick={() => abrir("carrito")}
             aria-label={`Carrito (${cantidadCarrito} productos)`}
@@ -346,14 +351,14 @@ export function Encabezado() {
               key={c}
               type="button"
               onClick={() => irAlCatalogo({ categoria: c })}
-              className="rounded-full px-3.5 py-2 text-sm font-bold hover:bg-[var(--vt-tinta)]/5"
+              className="hidden rounded-full px-3.5 py-2 text-sm font-bold hover:bg-[var(--vt-tinta)]/5 xl:inline-flex"
             >
               {c}
             </button>
           ))}
-          <span className="mx-1 h-5 w-0.5 bg-[var(--vt-tinta-15)]" aria-hidden="true" />
+          <span className="mx-1 hidden h-5 w-0.5 bg-[var(--vt-tinta-15)] xl:block" aria-hidden="true" />
           {enlaces.map((e) => (
-            <a
+            <Link
               key={e.href}
               href={e.href}
               className={cn(
@@ -363,13 +368,13 @@ export function Encabezado() {
             >
               {e.destacado && <Sparkles className="size-4" aria-hidden="true" />}
               {e.texto}
-            </a>
+            </Link>
           ))}
           <a
             href={whatsappDemo("Hola Verde Tienda, tengo una consulta sobre una planta.")}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-auto inline-flex items-center gap-1.5 text-sm font-bold text-[var(--vt-tinta-70)] hover:text-[var(--vt-tinta)]"
+            className="ml-auto hidden items-center gap-1.5 text-sm font-bold text-[var(--vt-tinta-70)] hover:text-[var(--vt-tinta)] 2xl:inline-flex"
           >
             <MessageCircle className="size-4" aria-hidden="true" /> ¿Dudas? Escribinos
           </a>
@@ -384,11 +389,17 @@ export function Encabezado() {
 export function MenuMovil() {
   const { panel, abrir, irAlCatalogo, usuario, cantidadCarrito, favoritos, pedidos, abrirCuenta } =
     useTienda()
+  const router = useRouter()
   const cerrar = () => abrir(null)
-  // Cerrar el menú y recién después bajar a la sección (el menú bloquea el scroll).
+  // Cerrar el menú y recién después bajar a la sección (el menú bloquea el
+  // scroll). Desde la ficha de producto, volver a la portada.
   function irA(ev: React.MouseEvent, href: string) {
     ev.preventDefault()
     cerrar()
+    if (!document.querySelector(href)) {
+      router.push(`${RUTA}${href}`)
+      return
+    }
     window.setTimeout(() => {
       document.querySelector(href)?.scrollIntoView({ block: "start" })
       history.replaceState(null, "", href)
@@ -463,12 +474,16 @@ export function MenuMovil() {
         <ul className="space-y-1 border-t-2 border-[var(--vt-tinta-15)] pt-4">
           {[
             { href: "#quiz", texto: "¿Qué planta va con vos? · Quiz" },
+            { href: "#armar", texto: "Armá tu maceta en 3D" },
+            { href: "#probala", texto: "Probala en tu casa" },
             { href: "#cuidados", texto: "Guía de cuidados" },
+            { href: "#herramientas", texto: "Medidor de luz y riego" },
+            { href: "#club", texto: "Club de plantas" },
             { href: "#resenas", texto: "Reseñas" },
             { href: "#preguntas", texto: "Envíos, pagos y garantía" },
           ].map((e) => (
             <li key={e.href}>
-              <a href={e.href} onClick={(ev) => irA(ev, e.href)} className="flex items-center justify-between rounded-2xl px-3 py-3 font-bold hover:bg-[var(--vt-papel)]">
+              <a href={`${RUTA}${e.href}`} onClick={(ev) => irA(ev, e.href)} className="flex items-center justify-between rounded-2xl px-3 py-3 font-bold hover:bg-[var(--vt-papel)]">
                 {e.texto} <ChevronRight className="size-4" aria-hidden="true" />
               </a>
             </li>

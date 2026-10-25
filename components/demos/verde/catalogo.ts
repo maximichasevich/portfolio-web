@@ -108,7 +108,7 @@ export const macetas: Maceta[] = [
   {
     id: "ceramica",
     nombre: "Cerámica",
-    detalle: "Esmaltada, en blanco, verde o rosa",
+    detalle: "Esmaltada, en cinco colores",
     extra: 450,
   },
 ]
@@ -407,13 +407,15 @@ export function precioVariante(
 export function textoVariante(
   planta: Planta,
   tamanoId: string,
-  macetaId: string
+  macetaId: string,
+  colorNombre?: string
 ) {
   const tamano =
     planta.tamanos.find((t) => t.id === tamanoId) ?? planta.tamanos[0]
   if (!planta.conMaceta) return tamano.nombre
   const maceta = macetas.find((m) => m.id === macetaId) ?? macetas[0]
-  return `${tamano.nombre} · maceta ${maceta.nombre.toLowerCase()}`
+  const color = macetaId === "ceramica" && colorNombre ? ` ${colorNombre.toLowerCase()}` : ""
+  return `${tamano.nombre} · maceta ${maceta.nombre.toLowerCase()}${color}`
 }
 
 /** Saca tildes y mayúsculas para buscar. */

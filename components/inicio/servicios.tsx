@@ -6,6 +6,8 @@ import { TextoAnimado } from "@/components/idioma/texto-animado"
 import PixelCard from "@/components/PixelCard"
 import { BlurFade } from "@/components/ui/blur-fade"
 import { ShineBorder } from "@/components/ui/shine-border"
+import { Inclinable } from "@/components/inicio/interacciones"
+import { CuboCapacidades } from "@/components/inicio/modelos-3d"
 import { servicios } from "@/data/perfil"
 
 const paletas = [
@@ -23,24 +25,28 @@ export function Servicios() {
       aria-labelledby="titulo-que-hago"
     >
       <div className="mx-auto max-w-6xl">
-        <div className="max-w-2xl">
-          <p className="etiqueta-hud mb-4">[01] Qué hago</p>
-          <h2
-            id="titulo-que-hago"
-            className="display text-[clamp(2.4rem,6vw,4.8rem)]"
-          >
-            <TextoAnimado
-              text="Qué puedo hacer por tu negocio"
-              animateBy="words"
-              effect="blur"
-              delay={60}
-              trigger="view"
-            />
-          </h2>
-          <p className="mt-5 text-base leading-relaxed text-[var(--estrella-70)] md:text-lg">
-            Tres tipos de página, explicados sin palabras raras. En la primera
-            charla te digo cuál te conviene.
-          </p>
+        <div className="grid items-center gap-10 md:grid-cols-[1fr_auto]">
+          <div className="max-w-2xl">
+            <p className="etiqueta-hud mb-4">[01] Qué hago</p>
+            <h2
+              id="titulo-que-hago"
+              className="display text-[clamp(2.4rem,6vw,4.8rem)]"
+            >
+              <TextoAnimado
+                text="Qué puedo hacer por tu negocio"
+                animateBy="words"
+                effect="blur"
+                delay={60}
+                trigger="view"
+              />
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-[var(--estrella-70)] md:text-lg">
+              Tres tipos de página, explicados sin palabras raras. En la primera
+              charla te digo cuál te conviene.
+            </p>
+          </div>
+          {/* Modelo 3D: cubo con lo que incluye cada página. */}
+          <CuboCapacidades className="md:mr-10" />
         </div>
 
         <ul className="mt-14 grid gap-5 md:grid-cols-3">
@@ -56,48 +62,50 @@ export function Servicios() {
                 className="min-w-0"
               >
                 <li className="h-full">
-                  <PixelCard
-                    colors={paletas[i % paletas.length]}
-                    gap={6}
-                    speed={30}
-                    pixelSize={3}
-                    origin="pointer"
-                    trigger="hover"
-                    intro
-                    introDelay={i * 150}
-                    glow={0.6}
-                    radius={24}
-                    theme="dark"
-                    className="h-full w-full"
-                  >
-                    <ShineBorder
-                      borderWidth={1}
-                      duration={12}
-                      shineColor={paletas[i % paletas.length]}
-                      className="rounded-[24px]"
-                    />
-                    <div className="relative z-10 flex h-full flex-col p-7 md:p-8">
-                      <span className="mb-6 inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--cian)]/20 to-[var(--violeta)]/30 text-[var(--cian)] ring-1 ring-[var(--borde)]">
-                        <Icono className="size-6" aria-hidden="true" />
-                      </span>
-                      <h3 className="display-md text-2xl md:text-3xl">
-                        {s.titulo}
-                      </h3>
-                      <p className="mt-4 flex-1 text-base leading-relaxed text-[var(--estrella-70)]">
-                        {s.descripcion}
-                      </p>
-                      <ul className="mt-6 flex flex-wrap gap-2">
-                        {s.incluye.map((item) => (
-                          <li
-                            key={item}
-                            className="rounded-full border border-[var(--borde)] px-3 py-1 text-xs text-[var(--estrella-70)]"
-                          >
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </PixelCard>
+                  <Inclinable className="h-full" grados={7}>
+                    <PixelCard
+                      colors={paletas[i % paletas.length]}
+                      gap={6}
+                      speed={30}
+                      pixelSize={3}
+                      origin="pointer"
+                      trigger="hover"
+                      intro
+                      introDelay={i * 150}
+                      glow={0.6}
+                      radius={24}
+                      theme="dark"
+                      className="h-full w-full"
+                    >
+                      <ShineBorder
+                        borderWidth={1}
+                        duration={12}
+                        shineColor={paletas[i % paletas.length]}
+                        className="rounded-[24px]"
+                      />
+                      <div className="relative z-10 flex h-full flex-col p-7 md:p-8">
+                        <span className="mb-6 inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--cian)]/20 to-[var(--violeta)]/30 text-[var(--cian)] ring-1 ring-[var(--borde)]">
+                          <Icono className="size-6" aria-hidden="true" />
+                        </span>
+                        <h3 className="display-md text-2xl md:text-3xl">
+                          {s.titulo}
+                        </h3>
+                        <p className="mt-4 flex-1 text-base leading-relaxed text-[var(--estrella-70)]">
+                          {s.descripcion}
+                        </p>
+                        <ul className="mt-6 flex flex-wrap gap-2">
+                          {s.incluye.map((item) => (
+                            <li
+                              key={item}
+                              className="rounded-full border border-[var(--borde)] px-3 py-1 text-xs text-[var(--estrella-70)]"
+                            >
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </PixelCard>
+                  </Inclinable>
                 </li>
               </BlurFade>
             )

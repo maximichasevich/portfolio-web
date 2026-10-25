@@ -10,10 +10,11 @@ import { VistaRapida } from "@/components/demos/verde/vista-rapida"
 import { Checkout } from "@/components/demos/verde/checkout"
 import { DialogoEntrar, PanelCuenta } from "@/components/demos/verde/cuenta"
 import { MenuMovil } from "@/components/demos/verde/encabezado"
+import { BarraComparar, DialogoComparar } from "@/components/demos/verde/comparador"
 
 /**
- * Envuelve la página de Verde Tienda: estado compartido (carrito, favoritos,
- * cuenta y filtros) y todos los paneles (cajones, vista rápida, checkout).
+ * Envuelve Verde Tienda: estado compartido (carrito, favoritos, cuenta y
+ * filtros) y todos los paneles (cajones, vista rápida, checkout, comparador).
  */
 export function Tienda({ children }: { children: React.ReactNode }) {
   return (
@@ -26,17 +27,23 @@ export function Tienda({ children }: { children: React.ReactNode }) {
       <PanelCuenta />
       <DialogoEntrar />
       <MenuMovil />
+      <DialogoComparar />
+      <BarraComparar />
       <Aviso />
     </ProveedorTienda>
   )
 }
 
-/** Avisos cortos ("agregada al carrito"), leídos por lectores de pantalla. */
+/**
+ * Avisos cortos ("agregada al carrito"), leídos por lectores de pantalla.
+ * En celular y tablet salen arriba; en escritorio, abajo a la derecha pero
+ * por encima del botón de WhatsApp para no quedar tapados.
+ */
 function Aviso() {
   const { aviso } = useTienda()
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 top-3 z-[70] flex justify-center px-4 sm:inset-x-auto sm:top-auto sm:right-5 sm:bottom-5"
+      className="pointer-events-none fixed inset-x-0 top-3 z-[70] flex justify-center px-4 lg:inset-x-auto lg:top-auto lg:right-5 lg:bottom-24"
       role="status"
       aria-live="polite"
     >

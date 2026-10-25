@@ -15,6 +15,8 @@ import {
   textoVariante,
 } from "@/components/demos/verde/catalogo"
 import { useTienda } from "@/components/demos/verde/estado"
+import { buscarColor, stockDe } from "@/components/demos/verde/extras"
+import { CampoCupon } from "@/components/demos/verde/cupon"
 import { Cajon, Contador, fondo } from "@/components/demos/verde/ui"
 
 /** Barra de progreso hacia el envío gratis en Montevideo. */
@@ -64,6 +66,8 @@ export function CajonCarrito() {
     carrito,
     cantidadCarrito,
     subtotal,
+    descuentoCupon,
+    cuponActivo,
     cambiarCantidad,
     agregar,
     irAlCatalogo,
@@ -85,9 +89,19 @@ export function CajonCarrito() {
       pie={
         carrito.length > 0 && (
           <div>
+            <CampoCupon id="carrito-cupon" className="mb-3" />
+            {descuentoCupon > 0 && (
+              <div className="mb-1 flex justify-between text-sm font-bold text-[var(--vt-hoja)]">
+                <span>Descuento</span>
+                <span className="tabular-nums">−{pesos(descuentoCupon)}</span>
+              </div>
+            )}
+            {cuponActivo?.tipo === "envio" && (
+              <p className="mb-1 text-sm font-bold text-[var(--vt-hoja)]">Envío gratis en Montevideo y la Costa</p>
+            )}
             <div className="flex items-baseline justify-between">
-              <span className="font-bold">Subtotal</span>
-              <span className="vt-titulo text-3xl tabular-nums">{pesos(subtotal)}</span>
+              <span className="font-bold">{descuentoCupon > 0 ? "Total" : "Subtotal"}</span>
+              <span className="vt-titulo text-3xl tabular-nums">{pesos(subtotal - descuentoCupon)}</span>
             </div>
             <p className="mt-1 text-xs text-[var(--vt-tinta-70)]">
               IVA incluido. El envío se calcula en el siguiente paso. Hasta 6
@@ -132,6 +146,7 @@ export function CajonCarrito() {
               const planta = buscarPlanta(l.plantaId)
               if (!planta) return null
               const precio = precioVariante(planta, l.tamanoId, l.macetaId)
+              const stock = stockDe(planta.id, l.tamanoId)
               return (
                 <li key={l.clave} className="vt-tarjeta flex gap-3 p-3">
                   <button
@@ -150,8 +165,13 @@ export function CajonCarrito() {
                       <div className="min-w-0">
                         <p className="truncate font-extrabold">{planta.nombre}</p>
                         <p className="text-xs text-[var(--vt-tinta-70)]">
-                          {textoVariante(planta, l.tamanoId, l.macetaId)}
+                          {textoVariante(planta, l.tamanoId, l.macetaId, l.colorId ? buscarColor(l.colorId).nombre : undefined)}
                         </p>
+                        {stock <= 5 && (
+                          <p className="mt-0.5 text-[11px] font-extrabold text-[#b02e14]">
+                            ¡Últimas {stock}!
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"
@@ -165,6 +185,7 @@ export function CajonCarrito() {
                     <div className="mt-auto flex items-end justify-between gap-2 pt-2">
                       <Contador
                         chico
+                        max={stock}
                         valor={l.cantidad}
                         nombre={planta.nombre}
                         onCambio={(n) => cambiarCantidad(l.clave, n)}
@@ -194,7 +215,7 @@ export function CajonCarrito() {
                       <button
                         type="button"
                         className="grid size-8 place-items-center rounded-full border-2 border-[var(--vt-tinta)] bg-[var(--vt-manteca)]"
-                        onClick={() => agregar(p.id)}
+                        onClick={(e) => agregar(p.id, { origen: e.currentTarget })}
                         aria-label={`Agregar ${p.nombre} al carrito`}
                       >
                         <Plus className="size-4" aria-hidden="true" />

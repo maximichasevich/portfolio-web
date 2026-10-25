@@ -2,7 +2,9 @@
 
 import { ArrowUpRight, Check, Info, Sparkles } from "lucide-react"
 
+import { Inclinable } from "@/components/inicio/interacciones"
 import { BlurFade } from "@/components/ui/blur-fade"
+import { NumberTicker } from "@/components/ui/number-ticker"
 import { ShineBorder } from "@/components/ui/shine-border"
 import { linkWhatsappCon } from "@/data/perfil"
 import {
@@ -63,7 +65,9 @@ export function Precios() {
               className={cn("min-w-0", p.destacado && "lg:-translate-y-4")}
             >
               <li className="h-full">
-                <TarjetaPaquete paquete={p} numero={i + 1} />
+                <Inclinable className="h-full" grados={6}>
+                  <TarjetaPaquete paquete={p} numero={i + 1} />
+                </Inclinable>
               </li>
             </BlurFade>
           ))}
@@ -212,7 +216,7 @@ function TarjetaPaquete({
           Desde
         </span>
         <span className={cn("display text-5xl", p.destacado && "degradado")}>
-          {p.desde}
+          <NumberTicker value={p.desde} className="text-inherit" />
         </span>
         <span className="mono text-sm text-[var(--estrella-70)]">dólares</span>
       </p>

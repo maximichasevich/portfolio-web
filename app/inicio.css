@@ -346,3 +346,282 @@
     animation-iteration-count: infinite !important;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Interacciones (components/inicio/interacciones.tsx)                */
+/* ------------------------------------------------------------------ */
+
+/* Tarjeta inclinable con reflejo. */
+.inicio .inclinable {
+  perspective: 1000px;
+  --rx: 0deg;
+  --ry: 0deg;
+  --gx: 50%;
+  --gy: 50%;
+}
+.inicio .inclinable-interior {
+  position: relative;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.inicio .inclinable[data-activo="true"] .inclinable-interior {
+  transition-duration: 0.15s;
+}
+.inicio .inclinable-reflejo {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    420px circle at var(--gx) var(--gy),
+    rgba(57, 213, 255, 0.16),
+    rgba(124, 92, 255, 0.06) 40%,
+    transparent 65%
+  );
+  transition: opacity 0.5s ease;
+}
+.inicio .inclinable[data-activo="true"] .inclinable-reflejo {
+  opacity: 1;
+}
+
+/* Botón magnético: vuelve con un rebote suave. */
+.inicio .magnetico {
+  transition: transform 0.5s cubic-bezier(0.22, 1.4, 0.36, 1);
+  will-change: transform;
+}
+
+/* Luz que sigue al cursor. */
+.cursor-luz {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 520px;
+  height: 520px;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    closest-side,
+    rgba(124, 92, 255, 0.13),
+    rgba(57, 213, 255, 0.05) 50%,
+    transparent
+  );
+  mix-blend-mode: screen;
+  transition: opacity 0.6s ease;
+}
+
+/* Haz de luz de la portada, en CSS (antes era JavaScript cuadro a cuadro). */
+@keyframes haz-izq {
+  0%,
+  100% {
+    transform: translateX(0) rotate(-45deg);
+  }
+  50% {
+    transform: translateX(90px) rotate(-45deg);
+  }
+}
+@keyframes haz-der {
+  0%,
+  100% {
+    transform: translateX(0) rotate(45deg);
+  }
+  50% {
+    transform: translateX(-90px) rotate(45deg);
+  }
+}
+.inicio .haz {
+  position: absolute;
+  top: -350px;
+  width: 560px;
+  height: 1380px;
+  pointer-events: none;
+  will-change: transform;
+}
+.inicio .haz-izq {
+  left: 0;
+  transform-origin: top left;
+  background: radial-gradient(
+    68.54% 68.72% at 55.02% 31.46%,
+    hsla(252, 100%, 80%, 0.12) 0,
+    hsla(252, 100%, 60%, 0.04) 50%,
+    hsla(252, 100%, 45%, 0) 80%
+  );
+  animation: haz-izq 14s ease-in-out infinite;
+}
+.inicio .haz-der {
+  right: 0;
+  transform-origin: top right;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    hsla(194, 100%, 80%, 0.1) 0,
+    hsla(194, 100%, 55%, 0.03) 80%,
+    transparent 100%
+  );
+  animation: haz-der 14s ease-in-out infinite;
+}
+
+/* Título de la portada: visible desde el primer cuadro (bueno para la
+   carga), entra desplazándose y cada palabra reacciona al cursor. */
+@keyframes palabra-entra {
+  from {
+    translate: 0 0.35em;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+.inicio .titulo-vivo .palabra {
+  display: inline-block;
+  --cerca: 0;
+  animation: palabra-entra 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.45s ease,
+    text-shadow 0.45s ease;
+  transform: translateY(calc(var(--cerca) * -0.12em));
+  color: color-mix(in oklab, var(--estrella), var(--cian) calc(var(--cerca) * 70%));
+  text-shadow:
+    0 0 calc(24px + var(--cerca) * 30px) rgba(57, 213, 255, calc(0.25 + var(--cerca) * 0.5)),
+    0 0 60px rgba(124, 92, 255, 0.3);
+}
+
+/* ------------------------------------------------------------------ */
+/* Modelos 3D en CSS (components/inicio/modelos-3d.tsx)               */
+/* ------------------------------------------------------------------ */
+
+/* Cubo de capacidades. */
+.inicio .cubo-escena {
+  --lado: 150px;
+  width: var(--lado);
+  height: var(--lado);
+  perspective: 900px;
+  --rx: -22deg;
+  --ry: 32deg;
+}
+@media (min-width: 768px) {
+  .inicio .cubo-escena {
+    --lado: 170px;
+  }
+}
+.inicio .cubo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+}
+.inicio .cubo-cara {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.75rem;
+  color: var(--estrella);
+  border: 1px solid rgba(57, 213, 255, 0.45);
+  border-radius: 18px;
+  background:
+    linear-gradient(140deg, rgba(57, 213, 255, 0.14), rgba(124, 92, 255, 0.12)),
+    rgba(8, 10, 26, 0.82);
+  box-shadow:
+    inset 0 0 30px rgba(57, 213, 255, 0.12),
+    0 0 24px -6px rgba(57, 213, 255, 0.5);
+  backface-visibility: visible;
+  transition:
+    background-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.inicio .cubo-cara:hover {
+  box-shadow:
+    inset 0 0 40px rgba(57, 213, 255, 0.3),
+    0 0 40px -4px rgba(57, 213, 255, 0.9);
+}
+.inicio .cubo-frente {
+  transform: translateZ(calc(var(--lado) / 2));
+}
+.inicio .cubo-atras {
+  transform: rotateY(180deg) translateZ(calc(var(--lado) / 2));
+}
+.inicio .cubo-derecha {
+  transform: rotateY(90deg) translateZ(calc(var(--lado) / 2));
+}
+.inicio .cubo-izquierda {
+  transform: rotateY(-90deg) translateZ(calc(var(--lado) / 2));
+}
+.inicio .cubo-arriba {
+  transform: rotateX(90deg) translateZ(calc(var(--lado) / 2));
+}
+.inicio .cubo-abajo {
+  transform: rotateX(-90deg) translateZ(calc(var(--lado) / 2));
+}
+/* Núcleo luminoso en el centro del cubo. */
+.inicio .cubo-nucleo {
+  position: absolute;
+  inset: 30%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(57, 213, 255, 0.9), rgba(124, 92, 255, 0.4) 50%, transparent 72%);
+  filter: blur(6px);
+}
+
+/* Anatomía de una web: capas apiladas. */
+.inicio .anatomia-escena {
+  position: relative;
+  height: 340px;
+  perspective: 1400px;
+  --rx: 58deg;
+  --ry: -38deg;
+}
+.inicio .anatomia {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 230px;
+  height: 150px;
+  margin: -75px 0 0 -115px;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateZ(var(--ry));
+}
+.inicio .anatomia-capa {
+  --separacion: 10px;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--color), transparent 35%);
+  background:
+    linear-gradient(135deg, color-mix(in oklab, var(--color), transparent 78%), rgba(8, 10, 26, 0.88)),
+    rgba(8, 10, 26, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 18px 40px -18px color-mix(in oklab, var(--color), transparent 30%);
+  transform: translateZ(calc(var(--i) * var(--separacion)));
+  transition:
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s ease,
+    border-color 0.5s ease;
+  cursor: pointer;
+}
+.inicio .anatomia-escena[data-abierta="true"] .anatomia-capa {
+  --separacion: 46px;
+  transition-delay: calc(var(--i) * 70ms);
+}
+.inicio .anatomia-capa:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 3px;
+}
+.inicio .anatomia-capa.activa {
+  transform: translateZ(calc(var(--i) * var(--separacion) + 26px)) scale(1.04);
+  border-color: var(--color);
+  box-shadow:
+    0 0 0 1px var(--color),
+    0 0 40px -4px var(--color),
+    0 30px 60px -20px color-mix(in oklab, var(--color), transparent 20%);
+  transition-delay: 0s;
+}

@@ -1,9 +1,13 @@
 "use client"
 
-import { useMemo } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { useMemo, useRef } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import {
+  ArrowLeftRight,
   Eye,
+  History,
   PawPrint,
   Plus,
   SlidersHorizontal,
@@ -24,9 +28,11 @@ import {
 } from "@/components/demos/verde/catalogo"
 import {
   filtrosVacios,
+  rutaPlanta,
   useTienda,
   type Orden,
 } from "@/components/demos/verde/estado"
+import { stockBajo } from "@/components/demos/verde/extras"
 import { BotonFavorito, Estrellas, FotoPlanta, fondo } from "@/components/demos/verde/ui"
 
 const ordenes: { id: Orden; texto: string }[] = [
@@ -194,18 +200,82 @@ export function Catalogo() {
   )
 }
 
+/**
+ * Inclinación 3D con brillo holográfico de sticker. Los valores se escriben
+ * como variables CSS dentro de requestAnimationFrame: React no se entera de
+ * cada movimiento del mouse. Con el dedo, la tarjeta "brilla" al tocarla.
+ */
+function useHolo() {
+  const ref = useRef<HTMLDivElement>(null)
+  const cuadroRef = useRef(0)
+  const soltarRef = useRef(0)
+
+  function aplicar(x: number, y: number) {
+    const el = ref.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const px = Math.max(0, Math.min(1, (x - r.left) / r.width))
+    const py = Math.max(0, Math.min(1, (y - r.top) / r.height))
+    cancelAnimationFrame(cuadroRef.current)
+    cuadroRef.current = requestAnimationFrame(() => {
+      el.style.setProperty("--ry", `${((px - 0.5) * 16).toFixed(2)}deg`)
+      el.style.setProperty("--rx", `${((0.5 - py) * 14).toFixed(2)}deg`)
+      el.style.setProperty("--mx", `${(px * 100).toFixed(1)}%`)
+      el.style.setProperty("--my", `${(py * 100).toFixed(1)}%`)
+      el.style.setProperty("--hx", `${(px * 100).toFixed(1)}%`)
+      el.style.setProperty("--hy", `${(py * 100).toFixed(1)}%`)
+    })
+  }
+
+  function soltar() {
+    const el = ref.current
+    if (!el) return
+    cancelAnimationFrame(cuadroRef.current)
+    delete el.dataset.activa
+    el.style.setProperty("--rx", "0deg")
+    el.style.setProperty("--ry", "0deg")
+  }
+
+  return {
+    ref,
+    onPointerEnter: (e: React.PointerEvent) => {
+      if (e.pointerType !== "mouse" || !ref.current) return
+      ref.current.dataset.activa = ""
+    },
+    onPointerMove: (e: React.PointerEvent) => {
+      if (e.pointerType !== "mouse") return
+      aplicar(e.clientX, e.clientY)
+    },
+    onPointerLeave: (e: React.PointerEvent) => {
+      if (e.pointerType === "mouse") soltar()
+    },
+    onPointerDown: (e: React.PointerEvent) => {
+      if (e.pointerType === "mouse" || !ref.current) return
+      ref.current.dataset.activa = ""
+      aplicar(e.clientX, e.clientY)
+      window.clearTimeout(soltarRef.current)
+      soltarRef.current = window.setTimeout(soltar, 650)
+    },
+  }
+}
+
 export function TarjetaPlanta({ planta, indice }: { planta: Planta; indice: number }) {
-  const { abrirVistaRapida, agregar } = useTienda()
+  const { abrirVistaRapida, agregar, comparar, alternarComparar, avisar } = useTienda()
   const forma = ((indice % 3) + 1) as 1 | 2 | 3
+  const holo = useHolo()
+  const quedan = stockBajo(planta)
+  const enComparador = comparar.includes(planta.id)
 
   return (
     <article className="vt-producto flex h-full flex-col">
       <div
+        {...holo}
         className={cn(
-          "relative rounded-[28px] border-2 border-[var(--vt-tinta)] p-2.5 sm:rounded-[32px] sm:p-4",
+          "vt-holo relative rounded-[28px] border-2 border-[var(--vt-tinta)] p-2.5 sm:rounded-[32px] sm:p-4",
           fondo[planta.color]
         )}
       >
+        <span className="vt-holo-brillo" aria-hidden="true" />
         <button
           type="button"
           onClick={() => abrirVistaRapida(planta.id)}
@@ -226,26 +296,44 @@ export function TarjetaPlanta({ planta, indice }: { planta: Planta; indice: numb
         </button>
         {planta.sticker && (
           <span
-            className="vt-sticker pointer-events-none absolute -top-3 -left-1 bg-[var(--vt-papel)] text-[10px] sm:-left-2 sm:text-[0.72rem]"
+            className="vt-sticker pointer-events-none absolute -top-3 -left-1 z-[2] bg-[var(--vt-papel)] text-[10px] sm:-left-2 sm:text-[0.72rem]"
             style={{ "--giro": giros[indice % giros.length] } as React.CSSProperties}
           >
             {planta.sticker}
           </span>
         )}
-        <BotonFavorito planta={planta} className="absolute top-3.5 right-3.5 size-9 sm:top-5 sm:right-5" />
+        <BotonFavorito planta={planta} className="absolute top-3.5 right-3.5 z-[2] size-9 sm:top-5 sm:right-5" />
         {planta.aptaMascotas && (
-          <span className="pointer-events-none absolute bottom-3.5 left-3.5 inline-flex items-center gap-1 rounded-full border-2 border-[var(--vt-tinta)] bg-[var(--vt-papel)] px-2 py-1 text-[10px] font-extrabold sm:bottom-5 sm:left-5 sm:text-xs">
-            <PawPrint className="size-3" aria-hidden="true" /> Apta mascotas
+          <span className="pointer-events-none absolute bottom-3.5 left-3.5 z-[2] inline-flex items-center gap-1 rounded-full border-2 border-[var(--vt-tinta)] bg-[var(--vt-papel)] px-2 py-1 text-[10px] font-extrabold sm:bottom-5 sm:left-5 sm:text-xs">
+            <PawPrint className="size-3" aria-hidden="true" /> <span className="hidden min-[400px]:inline">Apta</span> mascotas
           </span>
         )}
+        <button
+          type="button"
+          aria-pressed={enComparador}
+          aria-label={enComparador ? `Sacar ${planta.nombre} del comparador` : `Comparar ${planta.nombre}`}
+          title="Comparar"
+          onClick={() => {
+            if (!enComparador && comparar.length >= 3)
+              avisar("Podés comparar hasta 3: sacamos la primera que elegiste")
+            else if (!enComparador) avisar(`Sumaste ${planta.nombre} al comparador`)
+            alternarComparar(planta.id)
+          }}
+          className={cn(
+            "absolute right-3.5 bottom-3.5 z-[2] grid size-9 place-items-center rounded-full border-2 border-[var(--vt-tinta)] transition-transform hover:scale-110 active:scale-95 sm:right-5 sm:bottom-5",
+            enComparador ? "bg-[var(--vt-tinta)] text-[var(--vt-papel)]" : "bg-[var(--vt-papel)]"
+          )}
+        >
+          <ArrowLeftRight className="size-4" aria-hidden="true" />
+        </button>
       </div>
 
       <div className="flex flex-1 flex-col px-1 pt-3">
         <div className="flex flex-wrap items-baseline justify-between gap-x-2">
           <h3 className="vt-titulo text-[1.35rem] sm:text-[1.65rem]">
-            <button type="button" onClick={() => abrirVistaRapida(planta.id)} className="text-left hover:underline">
+            <Link href={rutaPlanta(planta.id)} className="text-left hover:underline">
               {planta.nombre}
-            </button>
+            </Link>
           </h3>
         </div>
         <p className="mt-0.5 truncate text-xs text-[var(--vt-tinta-70)] italic sm:text-sm">
@@ -256,6 +344,13 @@ export function TarjetaPlanta({ planta, indice }: { planta: Planta; indice: numb
           <span className="hidden sm:inline">({planta.opiniones})</span>
           <span className="font-semibold whitespace-nowrap">{textoLuz[planta.luz]}</span>
         </div>
+        {quedan && (
+          <p className="mt-2">
+            <span className="vt-quedan vt-anim inline-block rounded-full border-2 border-[var(--vt-tinta)] bg-[var(--vt-rosa)] px-2 py-0.5 text-[11px] font-extrabold">
+              ¡Quedan {quedan}!
+            </span>
+          </p>
+        )}
         <div className="mt-auto flex items-center justify-between gap-2 pt-3">
           <p className="leading-none">
             <span className="block text-[11px] font-semibold text-[var(--vt-tinta-70)]">
@@ -267,7 +362,7 @@ export function TarjetaPlanta({ planta, indice }: { planta: Planta; indice: numb
           </p>
           <button
             type="button"
-            onClick={() => agregar(planta.id)}
+            onClick={(e) => agregar(planta.id, { origen: e.currentTarget })}
             className="vt-boton h-10 shrink-0 px-3 text-sm sm:px-4"
             aria-label={`Agregar ${planta.nombre} al carrito`}
           >
@@ -277,5 +372,36 @@ export function TarjetaPlanta({ planta, indice }: { planta: Planta; indice: numb
         </div>
       </div>
     </article>
+  )
+}
+
+/* ---------- Vistos recientemente ---------- */
+
+export function VistosRecientes({ excluir, titulo = "Vistos recientemente" }: { excluir?: string; titulo?: string }) {
+  const { vistos, listo } = useTienda()
+  const plantas = vistos
+    .filter((id) => id !== excluir)
+    .flatMap((id) => catalogo.find((p) => p.id === id) ?? [])
+    .slice(0, 6)
+  if (!listo || plantas.length === 0) return null
+  return (
+    <section aria-labelledby="vistos-titulo" className="mt-14">
+      <h2 id="vistos-titulo" className="vt-titulo flex items-center gap-2 text-3xl">
+        <History className="size-6" aria-hidden="true" /> {titulo}
+      </h2>
+      <ul className="vt-sin-barra -mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:px-0">
+        {plantas.map((p, i) => (
+          <li key={p.id} className="w-36 shrink-0 sm:w-44">
+            <Link href={rutaPlanta(p.id)} className="group block">
+              <span className={cn("relative block aspect-square overflow-hidden border-2 border-[var(--vt-tinta)] transition-transform group-hover:-rotate-2", `vt-blob-${(i % 3) + 1}`, fondo[p.color])}>
+                <Image src={p.foto.src} alt="" fill sizes="(min-width: 640px) 176px, 144px" className="object-cover" />
+              </span>
+              <span className="mt-2 block truncate font-extrabold group-hover:underline">{p.nombre}</span>
+              <span className="block text-sm tabular-nums text-[var(--vt-tinta-70)]">desde {pesos(precioDesde(p))}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }

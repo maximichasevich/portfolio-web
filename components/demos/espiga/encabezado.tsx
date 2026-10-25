@@ -1,11 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { DropdownMenu } from "radix-ui"
 import {
+  ChevronDown,
   ClipboardList,
   Menu,
   MessageCircle,
+  Pause,
   Phone,
+  Play,
   ShoppingBag,
   UserRound,
 } from "lucide-react"
@@ -14,9 +18,11 @@ import { EstadoEnVivo } from "@/components/demos/espiga/en-vivo"
 import {
   abrirPanel,
   alternarLetra,
+  alternarQuieto,
   resumirBolsa,
   useBolsa,
   useLetraGrande,
+  useQuieto,
 } from "@/components/demos/espiga/estado"
 import { PanelLateral } from "@/components/demos/espiga/panel"
 import { Sello } from "@/components/demos/espiga/sello"
@@ -24,11 +30,16 @@ import { whatsappDemo } from "@/lib/demo"
 import { cn } from "@/lib/utils"
 
 export const secciones = [
-  { id: "carta", nombre: "La pizarra" },
-  { id: "horno", nombre: "El horno hoy" },
-  { id: "encargos", nombre: "Tortas y encargos" },
-  { id: "historia", nombre: "Nuestra historia" },
-  { id: "visitanos", nombre: "Horarios y dirección" },
+  { id: "promos", nombre: "Promos de hoy", corto: "Promos", pestana: true },
+  { id: "carta", nombre: "La pizarra", corto: "La pizarra", pestana: true },
+  { id: "horno", nombre: "El horno hoy", corto: "El horno", pestana: true },
+  { id: "historia", nombre: "Nuestra historia", corto: "Historia", pestana: true },
+  { id: "encargos", nombre: "Tortas y encargos", corto: "Tortas", pestana: true },
+  { id: "regalos", nombre: "Desayunos para regalar", corto: "Regalos", pestana: false },
+  { id: "de-siempre", nombre: "Tarjeta y pan de la semana", corto: "De siempre", pestana: false },
+  { id: "opiniones", nombre: "Opiniones de vecinos", corto: "Opiniones", pestana: false },
+  { id: "preguntas", nombre: "Preguntas frecuentes", corto: "Preguntas", pestana: false },
+  { id: "visitanos", nombre: "Horarios y cómo llegar", corto: "Horarios", pestana: true },
 ]
 
 export const telefono = { texto: "2709 4512", href: "tel:+59827094512" }
@@ -67,6 +78,68 @@ function BotonLetra({ className }: { className?: string }) {
   )
 }
 
+function BotonMovimiento({ className }: { className?: string }) {
+  const quieto = useQuieto()
+  return (
+    <button
+      type="button"
+      onClick={alternarQuieto}
+      aria-pressed={quieto}
+      className={cn(
+        "inline-flex min-h-10 items-center gap-1.5 rounded-md px-2.5 font-bold",
+        className
+      )}
+    >
+      {quieto ? (
+        <Play className="size-4" aria-hidden="true" />
+      ) : (
+        <Pause className="size-4" aria-hidden="true" />
+      )}
+      <span>{quieto ? "Mover animaciones" : "Pausar animaciones"}</span>
+    </button>
+  )
+}
+
+function contenedor() {
+  if (typeof document === "undefined") return undefined
+  return document.querySelector<HTMLElement>(".espiga") ?? undefined
+}
+
+/** Pestaña "Más": el resto de las secciones en un menú desplegable. */
+function MenuMas({ activa }: { activa: string | null }) {
+  const resto = secciones.filter((s) => !s.pestana)
+  const dentro = resto.some((s) => s.id === activa)
+  return (
+    <DropdownMenu.Root modal={false}>
+      <DropdownMenu.Trigger
+        className="pestana gap-1.5"
+        aria-current={dentro ? "true" : undefined}
+      >
+        Más
+        <ChevronDown className="size-4" aria-hidden="true" />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal container={contenedor()}>
+        <DropdownMenu.Content
+          align="start"
+          sideOffset={6}
+          className="papel z-50 min-w-[16rem] rounded-md border-2 border-[var(--tinta)] p-1.5 shadow-xl data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-top-1"
+        >
+          {resto.map((s) => (
+            <DropdownMenu.Item
+              key={s.id}
+              onSelect={() => irA(s.id)}
+              className="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded px-3 text-[1.05rem] font-bold outline-none data-[highlighted]:bg-[var(--amarilla)]"
+            >
+              {s.nombre}
+              <span aria-hidden="true" className="text-[var(--rojo)]">→</span>
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  )
+}
+
 function BotonBolsa({ className }: { className?: string }) {
   const bolsa = useBolsa()
   const { unidades } = resumirBolsa(bolsa)
@@ -99,6 +172,15 @@ function BotonBolsa({ className }: { className?: string }) {
 
 export function Encabezado() {
   const grande = useLetraGrande()
+  const quieto = useQuieto()
+
+  // Pausa general: congela las animaciones CSS de todo el sitio.
+  useEffect(() => {
+    const raiz = document.querySelector<HTMLElement>(".espiga")
+    if (!raiz) return
+    if (quieto) raiz.dataset.quieto = ""
+    else delete raiz.dataset.quieto
+  }, [quieto])
   const [activa, setActiva] = useState<string | null>(null)
 
   // Letra grande: agranda la base de todo el sitio y la restaura al salir.
@@ -141,7 +223,10 @@ export function Encabezado() {
               Tel. {telefono.texto}
             </a>
           </p>
-          <BotonLetra className="hidden text-[0.95rem] hover:bg-white/10 sm:inline-flex" />
+          <div className="hidden items-center gap-1 sm:flex">
+            <BotonMovimiento className="text-[0.95rem] hover:bg-white/10" />
+            <BotonLetra className="text-[0.95rem] hover:bg-white/10" />
+          </div>
         </div>
       </div>
 
@@ -216,17 +301,22 @@ export function Encabezado() {
         <div className="mx-auto hidden max-w-6xl items-end justify-between gap-4 px-8 pt-2 lg:flex">
           <nav aria-label="Secciones">
             <ul className="flex items-end gap-1.5">
-              {secciones.map((s) => (
-                <li key={s.id}>
-                  <a
-                    href={`#${s.id}`}
-                    className="pestana"
-                    aria-current={activa === s.id ? "true" : undefined}
-                  >
-                    {s.nombre}
-                  </a>
-                </li>
-              ))}
+              {secciones
+                .filter((s) => s.pestana)
+                .map((s) => (
+                  <li key={s.id}>
+                    <a
+                      href={`#${s.id}`}
+                      className="pestana"
+                      aria-current={activa === s.id ? "true" : undefined}
+                    >
+                      {s.corto}
+                    </a>
+                  </li>
+                ))}
+              <li>
+                <MenuMas activa={activa} />
+              </li>
             </ul>
           </nav>
           <BotonBolsa className="mb-2" />
@@ -314,6 +404,7 @@ export function Encabezado() {
             Escribinos por WhatsApp
           </a>
           <BotonLetra className="-ml-2.5 justify-start hover:bg-[var(--papel-2)]" />
+          <BotonMovimiento className="-ml-2.5 justify-start hover:bg-[var(--papel-2)]" />
         </div>
       </PanelLateral>
     </>

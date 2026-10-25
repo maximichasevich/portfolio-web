@@ -168,7 +168,7 @@ export function Cabecera() {
                       <span className="mono w-8 shrink-0 text-xs text-[var(--piedra-claro)]">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span className="serif text-[clamp(2.4rem,min(6.4vw,9svh),4.75rem)] leading-[1.02] transition-[transform,font-style] duration-500 group-hover:translate-x-3 group-hover:italic group-focus-visible:translate-x-3 group-focus-visible:italic">
+                      <span className="serif text-[clamp(2rem,min(5.6vw,6.6svh),4.25rem)] leading-[1.02] transition-[transform,font-style] duration-500 group-hover:translate-x-3 group-hover:italic group-focus-visible:translate-x-3 group-focus-visible:italic">
                         {s.nombre}
                       </span>
                     </a>

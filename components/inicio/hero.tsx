@@ -1,13 +1,14 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 
-import { TextoAnimado } from "@/components/idioma/texto-animado"
+import { Magnetico } from "@/components/inicio/interacciones"
+import { TituloVivo } from "@/components/inicio/titulo-vivo"
 import GradientText from "@/components/GradientText"
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern"
 import { NumberTicker } from "@/components/ui/number-ticker"
 import { ShimmerButton } from "@/components/ui/shimmer-button"
-import { Spotlight } from "@/components/ui/spotlight-new"
 import { WordRotate } from "@/components/ui/word-rotate"
 import { perfil } from "@/data/perfil"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
@@ -29,7 +30,6 @@ const datos = [
   { etiqueta: "Horas para responder", antes: "", valor: 24, despues: "h" },
 ]
 
-
 export function Hero() {
   const reducido = useReducedMotion()
 
@@ -41,7 +41,7 @@ export function Hero() {
     >
       {/* Capa 1: grilla que se enciende por sectores, fundida hacia el centro. */}
       <AnimatedGridPattern
-        numSquares={28}
+        numSquares={18}
         maxOpacity={0.12}
         duration={3}
         className={cn(
@@ -63,8 +63,9 @@ export function Hero() {
               ease={40}
               vy={-0.08}
             />
+            {/* Segunda capa solo en pantallas medianas o grandes. */}
             <Particles
-              className="absolute inset-0"
+              className="absolute inset-0 hidden md:block"
               quantity={40}
               color="#39d5ff"
               size={0.6}
@@ -73,12 +74,13 @@ export function Hero() {
               vy={-0.04}
             />
           </div>
-          <div className="pointer-events-none absolute inset-0 overflow-hidden motion-reduce:hidden">
-            <Spotlight
-              gradientFirst="radial-gradient(68.54% 68.72% at 55.02% 31.46%, hsla(252, 100%, 80%, .12) 0, hsla(252, 100%, 60%, .04) 50%, hsla(252, 100%, 45%, 0) 80%)"
-              gradientSecond="radial-gradient(50% 50% at 50% 50%, hsla(194, 100%, 80%, .10) 0, hsla(194, 100%, 55%, .03) 80%, transparent 100%)"
-              gradientThird="radial-gradient(50% 50% at 50% 50%, hsla(252, 100%, 85%, .06) 0, hsla(252, 100%, 45%, .02) 80%, transparent 100%)"
-            />
+          {/* Haz de luz en CSS: no ocupa el procesador cuadro a cuadro. */}
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+            aria-hidden="true"
+          >
+            <div className="haz haz-izq" />
+            <div className="haz haz-der" />
           </div>
         </>
       )}
@@ -113,16 +115,7 @@ export function Hero() {
             id="titulo-hero"
             className="display brillo max-w-[15ch] text-[clamp(2.3rem,4vw,3.6rem)]"
           >
-            <TextoAnimado
-              text="Tu negocio merece una página que impresione."
-              animateBy="words"
-              effect="focus"
-              direction="bottom"
-              delay={90}
-              stepDuration={0.45}
-              trigger="load"
-              className="justify-start"
-            />
+            <TituloVivo texto="Tu negocio merece una página que impresione." />
           </h1>
 
           <div className="display-md mt-6 flex flex-wrap items-baseline gap-x-2 text-xl text-[var(--estrella-70)] md:text-2xl">
@@ -147,26 +140,31 @@ export function Hero() {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href="#contacto"
-              className="rounded-full focus-visible:outline-none"
-            >
+            <Magnetico>
               <ShimmerButton
+                type="button"
+                onClick={() =>
+                  document
+                    .getElementById("contacto")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
                 shimmerColor="#39d5ff"
                 shimmerSize="0.08em"
                 shimmerDuration="2.6s"
                 background="linear-gradient(100deg, #39d5ff, #7c5cff)"
-                className="px-7 py-4 text-base font-semibold text-[var(--noche)] shadow-[0_18px_50px_-12px_rgba(57,213,255,0.6)]"
+                className="px-7 py-4 text-base font-semibold text-[var(--noche)] shadow-[0_18px_50px_-12px_rgba(57,213,255,0.6)] focus-visible:ring-2 focus-visible:ring-[var(--cian)] focus-visible:outline-none"
               >
                 Quiero mi página
               </ShimmerButton>
-            </a>
-            <a
-              href="#trabajos"
-              className="boton-fantasma rounded-full px-7 py-4 text-base font-medium"
-            >
-              Ver ejemplos
-            </a>
+            </Magnetico>
+            <Magnetico fuerza={0.22}>
+              <a
+                href="#trabajos"
+                className="boton-fantasma rounded-full px-7 py-4 text-base font-medium"
+              >
+                Ver ejemplos
+              </a>
+            </Magnetico>
           </div>
 
           <dl className="mt-12 grid max-w-xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[var(--borde)] bg-[var(--borde)] sm:grid-cols-4">
@@ -192,18 +190,62 @@ export function Hero() {
         <div className="relative mx-auto aspect-square w-full max-w-[520px]">
           <div className="pointer-events-none absolute inset-[12%] rounded-full bg-[radial-gradient(closest-side,rgba(124,92,255,0.45),transparent)] blur-3xl" />
           {/* Lecturas tipo radar alrededor del globo. */}
-          <span aria-hidden="true" className="mono pointer-events-none absolute top-[4%] left-0 text-[10px] leading-relaxed text-[var(--estrella-45)]">
+          <span
+            aria-hidden="true"
+            className="mono pointer-events-none absolute top-[4%] left-0 text-[10px] leading-relaxed text-[var(--estrella-45)]"
+          >
             LAT -34.9011
             <br />
             LON -56.1645
           </span>
-          <span aria-hidden="true" className="mono pointer-events-none absolute right-0 bottom-[4%] flex items-center gap-2 text-[10px] text-[var(--estrella-45)]">
+          <span
+            aria-hidden="true"
+            className="mono pointer-events-none absolute right-0 bottom-[4%] flex items-center gap-2 text-[10px] text-[var(--estrella-45)]"
+          >
             <span className="en-vivo" aria-hidden="true" /> SEÑAL ESTABLE
           </span>
-          <GloboOrbital className="absolute inset-0" />
+          <GloboDiferido />
         </div>
       </div>
     </section>
   )
 }
 
+/**
+ * El globo 3D se monta cuando el navegador termina lo esencial (evento
+ * "load" + un momento libre), para no competir con la primera carga.
+ * Mientras tanto se ve un disco con el mismo aspecto, sin saltos de diseño.
+ */
+function GloboDiferido() {
+  const [listo, setListo] = useState(false)
+
+  useEffect(() => {
+    let cancelado = false
+    const montar = () => {
+      const w = window as Window & {
+        requestIdleCallback?: (
+          cb: () => void,
+          o?: { timeout: number }
+        ) => number
+      }
+      const listoYa = () => !cancelado && setListo(true)
+      if (w.requestIdleCallback)
+        w.requestIdleCallback(listoYa, { timeout: 1500 })
+      else window.setTimeout(listoYa, 300)
+    }
+    if (document.readyState === "complete") montar()
+    else window.addEventListener("load", montar, { once: true })
+    return () => {
+      cancelado = true
+      window.removeEventListener("load", montar)
+    }
+  }, [])
+
+  if (listo) return <GloboOrbital className="absolute inset-0" />
+  return (
+    <div
+      className="pointer-events-none absolute inset-[12%] rounded-full shadow-[0_0_80px_-10px_rgba(124,92,255,0.7)] ring-2 ring-[var(--violeta)]/60 [background:radial-gradient(circle_at_40%_35%,rgba(124,92,255,0.35),rgba(12,15,34,0.95)_65%)]"
+      aria-hidden="true"
+    />
+  )
+}

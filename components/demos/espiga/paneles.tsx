@@ -46,6 +46,7 @@ import {
   franjasRetiro,
   momentoMontevideo,
 } from "@/components/demos/espiga/horario"
+import { FichaProducto } from "@/components/demos/espiga/ficha"
 import { PanelLateral } from "@/components/demos/espiga/panel"
 import { pesos, whatsappDemo } from "@/lib/demo"
 import { cn } from "@/lib/utils"
@@ -919,6 +920,7 @@ export function Paneles() {
       <PanelBolsa />
       <PanelDatos />
       <PanelPedidos />
+      <FichaProducto />
       <BarraBolsa />
       <Aviso />
     </>

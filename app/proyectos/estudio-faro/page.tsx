@@ -16,9 +16,13 @@ import {
   reconocimientos,
   servicios,
 } from "@/components/demos/faro/datos"
+import { Diario } from "@/components/demos/faro/diario"
+import { Dossier, Newsletter } from "@/components/demos/faro/dossier"
 import { Galeria } from "@/components/demos/faro/galeria"
 import { Cabecera, Logo } from "@/components/demos/faro/menu"
+import { Diferido } from "@/components/demos/faro/perezosos"
 import { Portada } from "@/components/demos/faro/portada"
+import { Busquedas, Preguntas } from "@/components/demos/faro/preguntas"
 
 const dos = (n: number) => String(n).padStart(2, "0")
 
@@ -118,6 +122,22 @@ export default function Page() {
             </div>
           </div>
           <Galeria />
+
+          <div className="mt-28 grid gap-6 md:mt-40 lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <p className="etiqueta text-[var(--piedra)]">Mapa de obras</p>
+            </div>
+            <div className="lg:col-span-8 lg:col-start-5">
+              <h3 className="serif text-[clamp(2.4rem,4.6vw,4rem)]">
+                Entre el río <em>y el océano.</em>
+              </h3>
+              <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-[var(--carbon)]/75">
+                Obras terminadas, en curso y en proyecto, de la Ciudad Vieja a
+                Manantiales. Elegí un punto para ver su ficha.
+              </p>
+            </div>
+          </div>
+          <Diferido pieza="mapa" alto="min-h-[560px] lg:min-h-[640px]" className="mt-10" />
         </section>
 
         {/* Pausa fotográfica a todo el ancho */}
@@ -135,6 +155,60 @@ export default function Page() {
           </figcaption>
         </figure>
 
+        {/* Laboratorio: maqueta 3D, estudio solar, corte y comparador */}
+        <section
+          id="laboratorio"
+          tabIndex={-1}
+          className="scroll-mt-20 px-4 py-28 outline-none sm:px-8 md:py-40 lg:px-12"
+        >
+          <div className="mb-12 grid gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <Rotulo numero={3} nombre="Laboratorio" />
+            </div>
+            <div className="lg:col-span-8 lg:col-start-5">
+              <h2 className="serif text-[clamp(3rem,7vw,6.5rem)]">
+                Dibujar <em>antes de construir.</em>
+              </h2>
+              <p className="mt-5 max-w-lg text-[0.95rem] leading-relaxed text-[var(--carbon)]/75">
+                Así presentamos un anteproyecto: una maqueta que se gira y se
+                desarma por capas, el recorrido real del sol sobre el terreno y
+                cortes que explican cada decisión.
+              </p>
+            </div>
+          </div>
+          <Diferido pieza="maqueta" alto="min-h-[1080px] lg:min-h-[640px]" />
+
+          <div className="mt-24 mb-10 grid gap-6 md:mt-32 lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <p className="etiqueta text-[var(--piedra)]">Corte interactivo</p>
+            </div>
+            <div className="lg:col-span-8 lg:col-start-5">
+              <h3 className="serif text-[clamp(2.4rem,4.6vw,4rem)]">
+                Un alero <em>hace el trabajo.</em>
+              </h3>
+              <p className="mt-4 max-w-lg text-[0.95rem] leading-relaxed text-[var(--carbon)]/75">
+                Cambiá la estación y mirá hasta dónde entra el sol del mediodía
+                en Casa Carrasco. Los números del dibujo explican cada pieza.
+              </p>
+            </div>
+          </div>
+          <Diferido pieza="corte" alto="min-h-[640px] lg:min-h-[520px]" />
+
+          <div className="mt-24 mb-10 grid gap-6 md:mt-32 lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <p className="etiqueta text-[var(--piedra)]">Del croquis a la obra</p>
+            </div>
+            <div className="lg:col-span-8 lg:col-start-5">
+              <h3 className="serif text-[clamp(2.4rem,4.6vw,4rem)]">
+                Lo que dibujamos, <em>construido.</em>
+              </h3>
+            </div>
+          </div>
+          <div className="lg:grid lg:grid-cols-12">
+            <Diferido pieza="comparador" alto="min-h-[340px] lg:min-h-[560px]" className="lg:col-span-10 lg:col-start-2" />
+          </div>
+        </section>
+
         {/* Estudio y equipo */}
         <section
           id="estudio"
@@ -143,7 +217,7 @@ export default function Page() {
         >
           <div className="grid gap-12 lg:grid-cols-12">
             <div className="lg:col-span-3">
-              <Rotulo numero={3} nombre="Estudio" />
+              <Rotulo numero={4} nombre="Estudio" />
             </div>
             <div className="lg:col-span-4 lg:col-start-5">
               <h2 className="serif text-[clamp(2.8rem,5.5vw,5rem)]">
@@ -207,6 +281,27 @@ export default function Page() {
               </tbody>
             </table>
           </div>
+
+          <div id="trabajo" tabIndex={-1} className="mt-24 scroll-mt-24 outline-none lg:grid lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <p className="etiqueta text-[var(--piedra)]">Trabajá con nosotros</p>
+            </div>
+            <div className="mt-6 lg:col-span-8 lg:col-start-5 lg:mt-0">
+              <h3 className="serif text-[clamp(2.2rem,4vw,3.4rem)]">
+                Búsquedas <em>abiertas</em>
+              </h3>
+              <div className="mt-8">
+                <Busquedas />
+              </div>
+              <p className="mt-6 text-sm text-[var(--carbon)]/75">
+                ¿No es tu perfil? Mandanos tu portfolio igual a{" "}
+                <a href={`mailto:${estudio.correo}?subject=${encodeURIComponent("Postulación espontánea")}`} className="subrayado">
+                  {estudio.correo}
+                </a>
+                .
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* Servicios */}
@@ -217,7 +312,7 @@ export default function Page() {
         >
           <div className="grid gap-12 lg:grid-cols-12">
             <div className="lg:col-span-3">
-              <Rotulo numero={4} nombre="Servicios" />
+              <Rotulo numero={5} nombre="Servicios" />
             </div>
             <div className="lg:col-span-8 lg:col-start-5">
               <h2 className="serif text-[clamp(2.8rem,5.5vw,5rem)]">
@@ -258,7 +353,7 @@ export default function Page() {
         >
           <div className="grid gap-12 lg:grid-cols-12">
             <div className="lg:col-span-3">
-              <Rotulo numero={5} nombre="Proceso" />
+              <Rotulo numero={6} nombre="Proceso" />
             </div>
             <div className="lg:col-span-8 lg:col-start-5">
               <h2 className="serif text-[clamp(2.8rem,5.5vw,5rem)]">
@@ -294,6 +389,38 @@ export default function Page() {
           </ol>
         </section>
 
+        {/* Costos y honorarios */}
+        <section
+          id="honorarios"
+          tabIndex={-1}
+          className="scroll-mt-20 bg-[var(--papel)] px-4 py-28 outline-none sm:px-8 md:py-40 lg:px-12"
+        >
+          <div className="mb-12 grid gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <Rotulo numero={7} nombre="Honorarios" />
+            </div>
+            <div className="lg:col-span-8 lg:col-start-5">
+              <h2 className="serif text-[clamp(2.8rem,5.5vw,5rem)]">
+                Costos claros <em>desde el principio.</em>
+              </h2>
+              <p className="mt-5 max-w-lg text-[0.95rem] leading-relaxed text-[var(--carbon)]/75">
+                Una primera idea de cuánto cuesta construir lo que tenés en
+                mente. Es orientativa: el número real sale del proyecto.
+              </p>
+            </div>
+          </div>
+          <Diferido pieza="estimador" alto="min-h-[1280px] lg:min-h-[720px]" />
+
+          <div className="mt-24 grid gap-10 md:mt-32 lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <p className="etiqueta text-[var(--piedra)]">Preguntas frecuentes</p>
+            </div>
+            <div className="lg:col-span-8 lg:col-start-5">
+              <Preguntas />
+            </div>
+          </div>
+        </section>
+
         {/* Testimonio */}
         <section data-oscuro className="sobre-oscuro bg-[var(--carbon)] px-4 py-28 text-[var(--hueso)] sm:px-8 md:py-40 lg:px-12">
           <figure className="mx-auto max-w-5xl">
@@ -319,7 +446,7 @@ export default function Page() {
         >
           <div className="grid gap-12 lg:grid-cols-12">
             <div className="lg:col-span-3">
-              <Rotulo numero={6} nombre="Prensa" />
+              <Rotulo numero={8} nombre="Prensa" />
             </div>
             <div className="lg:col-span-8 lg:col-start-5">
               <h2 className="serif text-[clamp(2.8rem,5.5vw,5rem)]">
@@ -366,6 +493,28 @@ export default function Page() {
           </div>
         </section>
 
+        {/* Diario */}
+        <section
+          id="diario"
+          tabIndex={-1}
+          className="scroll-mt-20 border-t border-[var(--linea)] px-4 py-28 outline-none sm:px-8 md:py-40 lg:px-12"
+        >
+          <div className="mb-12 grid gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <Rotulo numero={9} nombre="Diario" />
+            </div>
+            <div className="lg:col-span-8 lg:col-start-5">
+              <h2 className="serif text-[clamp(2.8rem,5.5vw,5rem)]">
+                Notas <em>de taller</em>
+              </h2>
+              <p className="mt-5 max-w-lg text-[0.95rem] leading-relaxed text-[var(--carbon)]/75">
+                Lo que aprendemos en cada obra, escrito por quienes la dirigen.
+              </p>
+            </div>
+          </div>
+          <Diario />
+        </section>
+
         {/* Contacto */}
         <section
           id="contacto"
@@ -373,7 +522,7 @@ export default function Page() {
           tabIndex={-1}
           className="sobre-oscuro scroll-mt-20 bg-[var(--carbon)] px-4 pt-28 pb-16 text-[var(--hueso)] outline-none sm:px-8 md:pt-40 lg:px-12"
         >
-          <Rotulo numero={7} nombre="Contacto" claro />
+          <Rotulo numero={10} nombre="Contacto" claro />
           <h2 className="serif mt-10 text-[clamp(4rem,14vw,13rem)] leading-[0.85]">
             Conversemos<em>.</em>
           </h2>
@@ -391,6 +540,9 @@ export default function Page() {
                 <AbrirCapa capa="clientes" className="boton-linea">
                   Área de clientes
                 </AbrirCapa>
+              </div>
+              <div className="mt-12">
+                <Dossier />
               </div>
             </div>
             <div className="grid gap-8 text-sm sm:grid-cols-3 lg:col-span-6 lg:col-start-7">
@@ -439,6 +591,7 @@ export default function Page() {
               © 2026 Estudio Faro · Montevideo, Uruguay
             </p>
           </div>
+          <Newsletter />
           <ul className="flex flex-wrap gap-x-6 gap-y-2">
             {estudio.redes.map((r) => (
               <li key={r.nombre}>
@@ -453,10 +606,7 @@ export default function Page() {
               </li>
             ))}
             <li>
-              <a
-                href={`mailto:${estudio.correo}?subject=${encodeURIComponent("Quiero trabajar en Estudio Faro")}`}
-                className="subrayado"
-              >
+              <a href="#trabajo" className="subrayado">
                 Trabajá con nosotros
               </a>
             </li>

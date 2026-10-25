@@ -43,12 +43,50 @@ type Satelite = {
 }
 
 const satelites: Satelite[] = [
-  { Icono: Smartphone, titulo: "Perfecta en el celular", descripcion: "Se adapta a cualquier pantalla: celular, tablet o computadora.", orbita: 0, fase: 0 },
-  { Icono: Search, titulo: "Aparece en Google", descripcion: "Preparada para que te encuentren cuando buscan tu rubro y tu barrio.", orbita: 0, fase: (Math.PI * 2) / 3 },
-  { Icono: MessageCircle, titulo: "Botón de WhatsApp", descripcion: "Un toque y te escriben directo, con el mensaje ya armado.", orbita: 0, fase: (Math.PI * 4) / 3 },
-  { Icono: CreditCard, titulo: "Pagos online", descripcion: "Cobrá con Mercado Pago o tarjeta desde tu propia página.", orbita: 1, fase: Math.PI / 3 },
-  { Icono: Zap, titulo: "Carga en segundos", descripcion: "Imágenes y código optimizados, incluso con datos móviles.", orbita: 1, fase: Math.PI },
-  { Icono: GlobeIcon, titulo: "Dominio propio", descripcion: "tunegocio.com.uy a tu nombre, con correo profesional.", orbita: 1, fase: (Math.PI * 5) / 3 },
+  {
+    Icono: Smartphone,
+    titulo: "Perfecta en el celular",
+    descripcion:
+      "Se adapta a cualquier pantalla: celular, tablet o computadora.",
+    orbita: 0,
+    fase: 0,
+  },
+  {
+    Icono: Search,
+    titulo: "Aparece en Google",
+    descripcion:
+      "Preparada para que te encuentren cuando buscan tu rubro y tu barrio.",
+    orbita: 0,
+    fase: (Math.PI * 2) / 3,
+  },
+  {
+    Icono: MessageCircle,
+    titulo: "Botón de WhatsApp",
+    descripcion: "Un toque y te escriben directo, con el mensaje ya armado.",
+    orbita: 0,
+    fase: (Math.PI * 4) / 3,
+  },
+  {
+    Icono: CreditCard,
+    titulo: "Pagos online",
+    descripcion: "Cobrá con Mercado Pago o tarjeta desde tu propia página.",
+    orbita: 1,
+    fase: Math.PI / 3,
+  },
+  {
+    Icono: Zap,
+    titulo: "Carga en segundos",
+    descripcion: "Imágenes y código optimizados, incluso con datos móviles.",
+    orbita: 1,
+    fase: Math.PI,
+  },
+  {
+    Icono: GlobeIcon,
+    titulo: "Dominio propio",
+    descripcion: "tunegocio.com.uy a tu nombre, con correo profesional.",
+    orbita: 1,
+    fase: (Math.PI * 5) / 3,
+  },
 ]
 
 /** Órbitas: radio en fracción del ancho de la escena, inclinación y giro. */
@@ -235,7 +273,13 @@ export function GloboOrbital({ className }: { className?: string }) {
           const escala = esc * (elegido ? 1.25 : 1)
           el.style.transform = `translate(${X.toFixed(1)}px, ${Y.toFixed(1)}px) translate(-50%, -50%) scale(${escala.toFixed(3)})`
           el.style.zIndex = frente || elegido ? "30" : "5"
-          el.style.opacity = elegido ? "1" : frente ? "1" : tapado ? "0.25" : "0.55"
+          el.style.opacity = elegido
+            ? "1"
+            : frente
+              ? "1"
+              : tapado
+                ? "0.25"
+                : "0.55"
           el.style.pointerEvents = tapado ? "none" : "auto"
         })
       },
@@ -324,8 +368,18 @@ export function GloboOrbital({ className }: { className?: string }) {
           className="pointer-events-none absolute inset-0 z-[5] size-full overflow-visible"
           aria-hidden="true"
         >
-          <path fill="none" stroke="rgba(245,247,255,0.10)" strokeWidth="1" strokeDasharray="3 5" />
-          <path fill="none" stroke="rgba(245,247,255,0.10)" strokeWidth="1" strokeDasharray="3 5" />
+          <path
+            fill="none"
+            stroke="rgba(245,247,255,0.10)"
+            strokeWidth="1"
+            strokeDasharray="3 5"
+          />
+          <path
+            fill="none"
+            stroke="rgba(245,247,255,0.10)"
+            strokeWidth="1"
+            strokeDasharray="3 5"
+          />
         </svg>
 
         {/* Globo: el lienzo es opaco sobre la esfera y tapa lo de atrás. */}
@@ -363,7 +417,9 @@ export function GloboOrbital({ className }: { className?: string }) {
               type="button"
               aria-label={`${s.titulo}: ${s.descripcion}`}
               aria-pressed={fijado === i}
-              onPointerEnter={(ev) => ev.pointerType === "mouse" && setEncima(i)}
+              onPointerEnter={(ev) =>
+                ev.pointerType === "mouse" && setEncima(i)
+              }
               onPointerLeave={() => setEncima(null)}
               onFocus={() => setEncima(i)}
               onBlur={() => setEncima(null)}
@@ -375,7 +431,10 @@ export function GloboOrbital({ className }: { className?: string }) {
                   : "shadow-[0_0_24px_-4px_rgba(57,213,255,0.6)]"
               )}
             >
-              <s.Icono className={s.orbita === 0 ? "size-5" : "size-4"} aria-hidden="true" />
+              <s.Icono
+                className={s.orbita === 0 ? "size-5" : "size-4"}
+                aria-hidden="true"
+              />
             </button>
           )
         })}
@@ -399,7 +458,10 @@ export function GloboOrbital({ className }: { className?: string }) {
           </>
         ) : (
           <p className="mono flex items-center gap-2 text-[10px] tracking-wider text-[var(--estrella-45)] uppercase">
-            <Move3d className="size-3.5 text-[var(--cian)]" aria-hidden="true" />
+            <Move3d
+              className="size-3.5 text-[var(--cian)]"
+              aria-hidden="true"
+            />
             Arrastrá para girar · tocá un satélite
           </p>
         )}
