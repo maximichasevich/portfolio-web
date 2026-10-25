@@ -194,16 +194,21 @@
   border-radius: 0.5rem;
   transform-style: preserve-3d;
 }
+/* El producto queda siempre por delante del fondo de la vitrina: si la
+   animación de vuelta "se pasara de largo" hacia atrás, quedaría un instante
+   detrás del fondo y se vería desaparecer. Por eso la vuelta frena suave
+   (sin rebote) y el rebote se usa solo al acercarse. */
 .espiga .bandeja-cuerpo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translateZ(0);
-  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.25);
+  transform: translateZ(2px);
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.35, 1);
 }
 .espiga .bandeja-on .bandeja-cuerpo,
 .espiga .bandeja:focus-visible .bandeja-cuerpo {
   transform: translateZ(55px) translateY(-8px) rotateX(-12deg);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.25);
 }
 .espiga .bandeja-plato {
   position: relative;

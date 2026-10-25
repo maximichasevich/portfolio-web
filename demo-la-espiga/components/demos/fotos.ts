@@ -68,6 +68,97 @@ export const fotosEspiga = {
     fuente:
       "https://commons.wikimedia.org/wiki/File:A_cup_of_cappuccino.jpg",
   },
+  "flauta": {
+    src: "/demos/espiga/flauta.webp",
+    autor: "jules / stonesoup",
+    licencia: "CC BY 2.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Baguettes_-_stonesoup.jpg",
+  },
+  "felipes": {
+    src: "/demos/espiga/felipes.webp",
+    autor: "Daniel Sone",
+    licencia: "Public domain",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Basket_of_rolls.jpg",
+  },
+  "molde": {
+    src: "/demos/espiga/molde.webp",
+    autor: "ElinorD",
+    licencia: "CC BY-SA 3.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:White_bread.jpg",
+  },
+  "sintacc": {
+    src: "/demos/espiga/sintacc.webp",
+    autor: "Eurobas",
+    licencia: "CC BY-SA 3.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Pains_biologiques_sans_gluten_quinoa_sarrasin_teff.JPG",
+  },
+  "grasa": {
+    src: "/demos/espiga/grasa.webp",
+    autor: "Herry Wibisono",
+    licencia: "CC0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Croissants_au_beurre_(18953292873).jpg",
+  },
+  "bizcochosgrasa": {
+    src: "/demos/espiga/bizcochosgrasa.webp",
+    autor: "Horacio Cambeiro",
+    licencia: "CC BY-SA 4.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Bizcochos_de_grasa_y_tortillas_tucumanas_en_una_panader%C3%ADa_c%C3%A9ntrica_de_la_ciudad_de_San_Miguel_de_Tucum%C3%A1n.jpg",
+  },
+  "alfajoressintacc": {
+    src: "/demos/espiga/alfajoressintacc.webp",
+    autor: "Sara McCleary",
+    licencia: "CC BY-SA 4.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Alfajores-de-maicena-biscuits-recipe.jpg",
+  },
+  "pastafrola": {
+    src: "/demos/espiga/pastafrola.webp",
+    autor: "Just a Man",
+    licencia: "CC BY 4.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Pastafrola_marca_Carrefour_-_(2).jpg",
+  },
+  "budin": {
+    src: "/demos/espiga/budin.webp",
+    autor: "Kolforn",
+    licencia: "CC BY-SA 4.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:-2010-01-31_Lemon_drizzel_cake,_Trimingham,_Norfolk_(1).JPG",
+  },
+  "desayuno": {
+    src: "/demos/espiga/desayuno.webp",
+    autor: "Ezarate",
+    licencia: "CC BY-SA 3.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Desayuno-MDP-dec2014.jpg",
+  },
+  "miga": {
+    src: "/demos/espiga/miga.webp",
+    autor: "Brenton Walker",
+    licencia: "CC BY 2.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Sandwich_de_Miga.jpg",
+  },
+  "pascualina": {
+    src: "/demos/espiga/pascualina.webp",
+    autor: "Diosverde",
+    licencia: "CC BY-SA 4.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Pascualina_(Uruguay).jpg",
+  },
+  "pizza": {
+    src: "/demos/espiga/pizza.webp",
+    autor: "Horacio Cambeiro",
+    licencia: "CC BY-SA 3.0",
+    fuente:
+      "https://commons.wikimedia.org/wiki/File:Pizza_argentina_de_muzzarella_con_or%C3%A9gano_y_aceitunas_verdes.jpg",
+  },
 } satisfies Record<string, Foto>
 
 export const fotosVerde = {
